@@ -31,8 +31,12 @@ namespace lib
             var cardClass = (CardClass)(BaseCardIndex % 8);
             var origin = (Origin)(BaseCardIndex % 8);
             var platonic = (Platonic)(BaseCardIndex % 3);
+
+            var initialRoll = BaseCardIndex % 16;
+            var adverb = (initialRoll > 7) ? Adverb.Get(BaseCardIndex):null; 
+            
             BaseCardIndex += (Seed + 1);
-            return new Card(){CardClass = cardClass, Origin = origin, Platonic = platonic};
+            return new Card(){CardClass = cardClass, Origin = origin, Platonic = platonic, Adverb = adverb};
         }
     }
 }

@@ -70,7 +70,7 @@ public class CardGeneration
     [Test]
     public void CyclesThroughThreePlatonics()
     {
-        var generator = Generator.FromSeed(1);
+        var generator = Generator.FromSeed(0);
         var platonics = new HashSet<Platonic>();
         for (int i = 0; i < 3; ++i)
         {
@@ -82,5 +82,24 @@ public class CardGeneration
     
         var fourthPlatonic = generator.Roll().Platonic;
         Assert.IsTrue(platonics.Contains(fourthPlatonic));
+    }
+
+    [Test]
+    public void HalfOfCardsHaveAnAdverb()
+    {
+        var generator = Generator.FromSeed(0);
+        List<Card> withAdverbs = new List<Card>();
+        for (int i = 0; i < 100; ++i)
+        {
+            var card = generator.Roll();
+            if (card.Adverb != null)
+            {
+                withAdverbs.Add(card);
+            }
+        }
+        
+        // TODO crappy test, but probably works for now
+        Assert.IsTrue(withAdverbs.Count > 40);
+        Assert.IsTrue(withAdverbs.Count < 60);
     }
 }

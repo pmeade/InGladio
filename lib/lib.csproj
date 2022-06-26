@@ -38,6 +38,7 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Adverb.cs" />
         <Compile Include="Basket.cs" />
         <Compile Include="Board.cs" />
         <Compile Include="Card.cs" />

@@ -17,5 +17,6 @@ namespace lib
         public List<CardAttribute> CardAttributes { get; set; } = new List<CardAttribute>();
         public CardClass CardClass { get; set; }
         public Origin Origin { get; set; }
+        public Adverb Adverb { get; set; }
     }
 }
