@@ -50,6 +50,7 @@
         <Compile Include="Generator.cs" />
         <Compile Include="LootTable.cs" />
         <Compile Include="Match.cs" />
+        <Compile Include="Meta.cs" />
         <Compile Include="Origin.cs" />
         <Compile Include="Place.cs" />
         <Compile Include="Platonic.cs" />

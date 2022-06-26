@@ -18,5 +18,6 @@ namespace lib
         public CardClass CardClass { get; set; }
         public Origin Origin { get; set; }
         public Adverb Adverb { get; set; }
+        public Meta Meta { get; set; }
     }
 }

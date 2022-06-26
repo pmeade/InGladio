@@ -89,7 +89,7 @@ public class CardGeneration
     {
         var generator = Generator.FromSeed(0);
         List<Card> withAdverbs = new List<Card>();
-        for (int i = 0; i < 100; ++i)
+        for (int i = 0; i < 64; ++i)
         {
             var card = generator.Roll();
             if (card.Adverb != null)
@@ -98,8 +98,23 @@ public class CardGeneration
             }
         }
         
-        // TODO crappy test, but probably works for now
-        Assert.IsTrue(withAdverbs.Count > 40);
-        Assert.IsTrue(withAdverbs.Count < 60);
+        Assert.IsTrue(withAdverbs.Count == 32);
+    }
+
+    [Test]
+    public void ThreeOutOfSixteenHaveAMetaComponent()
+    {
+        var generator = Generator.FromSeed(0);
+        List<Card> withMeta = new List<Card>();
+        for (int i = 0; i < 64; ++i)
+        {
+            var card = generator.Roll();
+            if (card.Meta != null)
+            {
+                withMeta.Add(card);
+            }
+        }
+        
+        Assert.IsTrue(withMeta.Count == 12);
     }
 }
