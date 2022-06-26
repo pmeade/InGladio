@@ -6,10 +6,18 @@ namespace lib
     {
         private static Origin[] classes = new Origin[]
         {
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             new Origin() {Name = "Day"},
             new Origin() {Name = "Night"},
             new Origin() {Name = "Wood"},
-            new Origin() {Name = "Traveller"},
+            new Origin() {Name = "Traveler"},
             new Origin() {Name = "Comet"},
             new Origin() {Name = "Magician"},
             new Origin() {Name = "Fair"},

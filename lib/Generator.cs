@@ -28,47 +28,23 @@ namespace lib
                 return null;
             }
 
-            CardClass cardClass = null;
-            Origin origin = null;
-            
-            var platonic = (Platonic)(BaseCardIndex % 3);
+            var card = new Card();
+            card.Platonic = (Platonic)(nextRoll(card) % 3);
+            var powerRoll = nextRoll(card) % 16;
+            card.Power = (powerRoll > 11) ? Power.Eight : powerRoll > 7 ? Power.Five : Power.Three;
+            card.Adjective = Adjective.Get(nextRoll(card));
+            card.Adverb = (card.Adjective != null) ? Adverb.Get(nextRoll(card)) : null;
+            card.Origin = Origin.Get(nextRoll(card));
+            card.Meta = (card.Origin != null) ? Meta.Get(nextRoll(card)):null;
 
-            var initialRoll = BaseCardIndex % 16;
-            if (initialRoll > 7)
-            {
-                if (initialRoll % 2 == 0)
-                {
-                    cardClass = CardClass.Get(BaseCardIndex);
-                }
-                else
-                {
-                    origin = Origin.Get(BaseCardIndex);
-                }
-            }
 
-            Adverb adverb = null;
-            Meta meta = null;
-            if (initialRoll > 11)
-            {
-                if (initialRoll % 2 == 0)
-                {
-                    adverb = Adverb.Get(BaseCardIndex);
-                }
-                else
-                {
-                    meta = Meta.Get(BaseCardIndex);
-                }
-            }
+            return card;
+        }
 
-            BaseCardIndex += (Seed + 1);
-            return new Card()
-            {
-                CardClass = cardClass, 
-                Origin = origin,
-                Platonic = platonic, 
-                Adverb = adverb,
-                Meta = meta
-            };
+        private uint nextRoll(Card card)
+        {
+            BaseCardIndex += (uint)card.GetHashCode();
+            return BaseCardIndex;
         }
     }
 }

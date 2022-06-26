@@ -4,6 +4,22 @@
     {
         private static Adverb[] adverbs = new Adverb[]
         {
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             new Adverb(){Name = "Earnestly"},
             new Adverb(){Name = "Impressively"},
             new Adverb(){Name = "Nearby"},

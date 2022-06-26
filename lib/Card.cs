@@ -15,7 +15,7 @@ namespace lib
         public Action<PlayerController> OnWinHand { get; set; }
         public Action<PlayerController> OnBurned { get; set; }
         public List<CardAttribute> CardAttributes { get; set; } = new List<CardAttribute>();
-        public CardClass CardClass { get; set; }
+        public Adjective Adjective { get; set; }
         public Origin Origin { get; set; }
         public Adverb Adverb { get; set; }
         public Meta Meta { get; set; }

@@ -43,7 +43,7 @@
         <Compile Include="Board.cs" />
         <Compile Include="Card.cs" />
         <Compile Include="CardAttribute.cs" />
-        <Compile Include="CardClass.cs" />
+        <Compile Include="Adjective.cs" />
         <Compile Include="Challenge.cs" />
         <Compile Include="Choice.cs" />
         <Compile Include="Deck.cs" />
