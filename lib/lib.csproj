@@ -41,9 +41,12 @@
         <Compile Include="Basket.cs" />
         <Compile Include="Board.cs" />
         <Compile Include="Card.cs" />
+        <Compile Include="CardAttribute.cs" />
         <Compile Include="Challenge.cs" />
         <Compile Include="Choice.cs" />
         <Compile Include="Deck.cs" />
+        <Compile Include="Generator.cs" />
+        <Compile Include="LootTable.cs" />
         <Compile Include="Match.cs" />
         <Compile Include="Place.cs" />
         <Compile Include="Platonic.cs" />

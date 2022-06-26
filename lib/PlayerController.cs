@@ -172,5 +172,10 @@ namespace lib
         }
 
         public List<Match> completedMatches { get; } = new List<Match>();
+
+        public void HealSelf(int amount)
+        {
+            Health = Math.Min(Health + 3, 3);
+        }
     }
 }

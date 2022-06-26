@@ -4,9 +4,18 @@ namespace test;
 
 public class Cards
 {
+    private Match match;
+    private PlayerController leftPlayer;
+    private PlayerController rightPlayer;
+    
     [SetUp]
     public void Setup()
     {
+        this.leftPlayer = new PlayerController();
+        this.rightPlayer = new PlayerController();
+        var challenge = leftPlayer.CreateChallenge();
+        rightPlayer.AcceptChallenge(challenge);
+        this.match = leftPlayer.StartMatch();
     }
 
     [Test]
@@ -31,5 +40,69 @@ public class Cards
         Assert.IsTrue(three.Power == Power.Three);
         Assert.IsTrue(five.Power == Power.Five);
         Assert.IsTrue(eight.Power == Power.Eight);
+    }
+
+    [Test]
+    public void ActionOnWinHand()
+    {
+        var healSelfWhenWinHandCard = new Card()
+        {
+            Platonic = Platonic.Paper, Power = Power.Three, OnWinHand = controller => controller.HealSelf(3)
+        };
+        
+        Assert.IsTrue(match.Active);
+        Assert.IsTrue(leftPlayer.Health == 3);
+
+        leftPlayer.ChooseMove(new Card(), Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(new Card(), leftPlayer);
+        match.Resolve();
+        Assert.IsTrue(leftPlayer.Health == 2);
+        
+        // heal
+        leftPlayer.ChooseMove(healSelfWhenWinHandCard, Place.Square, leftPlayer);
+        rightPlayer.ChooseParry(new Card());
+        match.Resolve();
+        Assert.IsTrue(leftPlayer.Health == 3);
+    }
+    
+    [Test]
+    public void ActionOnBurned()
+    {
+        var healSelfWhenBurnedCard = new Card()
+        {
+            Platonic = Platonic.Paper, Power = Power.Three, OnBurned = controller => controller.HealSelf(3)
+        };
+        
+        Assert.IsTrue(match.Active);
+        Assert.IsTrue(leftPlayer.Health == 3);
+
+        leftPlayer.ChooseMove(new Card(), Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(new Card(), leftPlayer);
+        match.Resolve();
+        Assert.IsTrue(leftPlayer.Health == 2);
+        
+        // heal
+        Assert.IsTrue(healSelfWhenBurnedCard.Platonic == Platonic.Paper);
+        leftPlayer.ChooseMove(healSelfWhenBurnedCard, Place.Square, leftPlayer);
+        rightPlayer.ChooseMove(new Card(){Platonic = Platonic.Scissors}, Place.Square, rightPlayer);
+        match.Resolve();
+        Assert.IsTrue(leftPlayer.Health == 3);
+    }
+
+    [Test]
+    public void NeedsToMatchPowerOrBetterToWinHand()
+    {
+        Assert.IsTrue(match.Active);
+        Assert.IsTrue(leftPlayer.Health == 3);
+
+        leftPlayer.ChooseMove(new Card(){Power = Power.Five}, Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(new Card(){Power = Power.Three}, leftPlayer);
+        match.Resolve();
+        Assert.IsTrue(leftPlayer.Health == 3);
+
+        leftPlayer.ChooseMove(new Card(){Power = Power.Five}, Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(new Card(){Power = Power.Five}, leftPlayer);
+        match.Resolve();
+        Assert.IsTrue(leftPlayer.Health == 2);
     }
 }

@@ -15,7 +15,7 @@ namespace lib
             this.rightPlayer = acceptingPlayer;
             this.Active = true;
             this.Challenge = challenge;
-            this.Basket = new Basket();
+            this.Basket = new Basket(new LootTable());
         }
 
         protected Match()
@@ -104,7 +104,7 @@ namespace lib
         private void checkForVictory()
         {
             Basket.CheckForVictory();
-            
+
             if (leftPlayer.Dead && !rightPlayer.Dead)
             {
                 Active = false;
@@ -112,6 +112,7 @@ namespace lib
                 Winner = rightPlayer;
                 rightPlayer.Win();
                 leftPlayer.Lose();
+                Basket.Claim(rightPlayer);
             }
             else if (rightPlayer.Dead && !leftPlayer.Dead)
             {
@@ -120,6 +121,7 @@ namespace lib
                 Winner = leftPlayer;
                 leftPlayer.Win();
                 rightPlayer.Lose();
+                Basket.Claim(leftPlayer);
             }
             else if (rightPlayer.Dead && leftPlayer.Dead)
             {
@@ -135,6 +137,7 @@ namespace lib
                 Winner = leftPlayer;
                 leftPlayer.Win();
                 rightPlayer.Lose();
+                Basket.Claim(leftPlayer);
             }
             else if (Basket.SnatchedBy == rightPlayer)
             {
@@ -143,6 +146,7 @@ namespace lib
                 Winner = rightPlayer;
                 rightPlayer.Win();
                 leftPlayer.Lose();
+                Basket.Claim(rightPlayer);
             }
             else if (Round == 8)
             {
@@ -159,23 +163,35 @@ namespace lib
         {
             if (leftPlay.Card.Platonic == burns[rightPlay.Card.Platonic])
             {
+                leftPlay.Card.OnBurned?.Invoke(leftPlayer);
                 Board.LeftCard = null;
             }
 
             if (rightPlay.Card.Platonic == burns[leftPlay.Card.Platonic])
             {
+                rightPlay.Card.OnBurned?.Invoke(rightPlayer);
                 Board.RightCard = null;
             }
         }
 
         private void processPlays()
         {
-            if (!leftPlay.IsStoppedBy(rightPlay.Choice))
+            if (leftPlay.Wins(rightPlay))
+            {
+                leftPlay.Card.OnWinHand?.Invoke(leftPlayer);
+            }
+
+            if (rightPlay.Wins(leftPlay))
+            {
+                rightPlay.Card.OnWinHand?.Invoke(rightPlayer);
+            }
+            
+            if (leftPlay.BigEnough(rightPlay) && !leftPlay.IsStoppedBy(rightPlay.Choice))
             {
                 leftPlay.Resolve(leftPlayer);
             }
 
-            if (!rightPlay.IsStoppedBy(leftPlay.Choice))
+            if (rightPlay.BigEnough(leftPlay) && !rightPlay.IsStoppedBy(leftPlay.Choice))
             {
                 rightPlay.Resolve(rightPlayer);
             }

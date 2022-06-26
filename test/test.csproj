@@ -20,4 +20,8 @@
       <ProjectReference Include="..\lib\lib.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Cardset.cs" />
+    </ItemGroup>
+
 </Project>

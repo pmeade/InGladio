@@ -99,5 +99,17 @@ namespace lib
         {
             return true;
         }
+
+        public bool Wins(Play otherPlay)
+        {
+            return (Choice == Choice.Move && otherPlay.Choice == Choice.Parry)
+                   || (Choice == Choice.Parry && otherPlay.Choice == Choice.Strike)
+                   || (Choice == Choice.Strike && otherPlay.Choice == Choice.Move);
+        }
+
+        public bool BigEnough(Play otherPlay)
+        {
+            return Card.Power >= otherPlay.Card.Power;
+        }
     }
 }
