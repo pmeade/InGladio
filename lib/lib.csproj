@@ -42,12 +42,14 @@
         <Compile Include="Board.cs" />
         <Compile Include="Card.cs" />
         <Compile Include="CardAttribute.cs" />
+        <Compile Include="CardClass.cs" />
         <Compile Include="Challenge.cs" />
         <Compile Include="Choice.cs" />
         <Compile Include="Deck.cs" />
         <Compile Include="Generator.cs" />
         <Compile Include="LootTable.cs" />
         <Compile Include="Match.cs" />
+        <Compile Include="Origin.cs" />
         <Compile Include="Place.cs" />
         <Compile Include="Platonic.cs" />
         <Compile Include="Play.cs" />

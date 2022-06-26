@@ -15,5 +15,7 @@ namespace lib
         public Action<PlayerController> OnWinHand { get; set; }
         public Action<PlayerController> OnBurned { get; set; }
         public List<CardAttribute> CardAttributes { get; set; } = new List<CardAttribute>();
+        public CardClass CardClass { get; set; }
+        public Origin Origin { get; set; }
     }
 }
