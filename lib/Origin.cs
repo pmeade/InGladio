@@ -2,13 +2,13 @@
 {
     public enum Origin
     {
-        OfTheDay,
-        OfTheNight,
-        OfTheWood,
-        OfTheTraveller,
-        OfTheComet,
-        OfTheMagician,
-        OfTheFair,
-        OfTheEnd
+        Day,
+        Night,
+        Wood,
+        Traveller,
+        Comet,
+        Magician,
+        Fair,
+        End
     }
 }

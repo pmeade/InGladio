@@ -6,6 +6,7 @@ namespace lib
 {
     public class Basket : Target
     {
+        private readonly LootTable lootTable;
         public Card Card { get; private set; }
         public int Health { get; private set; } = 3;
         public Place Place { get; private set; } = Place.Square;
@@ -13,8 +14,9 @@ namespace lib
         public PlayerController SnatchedBy { get; private set; }
         public List<PlayerController> damageDealers { get; } = new List<PlayerController>();
 
-        public Basket()
+        public Basket(LootTable lootTable)
         {
+            this.lootTable = lootTable;
         }
 
         public void TakeDamage(int amount, PlayerController dealer)
@@ -29,9 +31,7 @@ namespace lib
             {
                 if (damageDealers.Count == 1)
                 {
-                    Open = true;
-                    SnatchedBy = damageDealers.First();
-                    Card = new Card();
+                    Claim(damageDealers.First());
                 }
             }
         }
@@ -39,6 +39,13 @@ namespace lib
         public void Move(Place place)
         {
             Place = place;
+        }
+
+        public void Claim(PlayerController playerController)
+        {
+            Open = true;
+            SnatchedBy = playerController;
+            this.Card = lootTable.Roll(17);
         }
     }
 }

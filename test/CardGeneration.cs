@@ -32,7 +32,7 @@ public class CardGeneration
         generator222.Roll();
         Assert.IsTrue(generator222.BaseCardIndex == 443);
     }
-    
+
     [Test]
     public void CyclesThroughEightClassesOfCard()
     {
