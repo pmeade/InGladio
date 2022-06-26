@@ -27,15 +27,39 @@ namespace lib
             {
                 return null;
             }
+
+            CardClass cardClass = null;
+            Origin origin = null;
             
-            var cardClass = (CardClass)(BaseCardIndex % 8);
-            var origin = (Origin)(BaseCardIndex % 8);
             var platonic = (Platonic)(BaseCardIndex % 3);
 
             var initialRoll = BaseCardIndex % 16;
-            var adverb = (initialRoll > 7) ? Adverb.Get(BaseCardIndex):null;
-            var meta = (initialRoll > 12) ? Meta.Get(BaseCardIndex) : null;
-            
+            if (initialRoll > 7)
+            {
+                if (initialRoll % 2 == 0)
+                {
+                    cardClass = CardClass.Get(BaseCardIndex);
+                }
+                else
+                {
+                    origin = Origin.Get(BaseCardIndex);
+                }
+            }
+
+            Adverb adverb = null;
+            Meta meta = null;
+            if (initialRoll > 11)
+            {
+                if (initialRoll % 2 == 0)
+                {
+                    adverb = Adverb.Get(BaseCardIndex);
+                }
+                else
+                {
+                    meta = Meta.Get(BaseCardIndex);
+                }
+            }
+
             BaseCardIndex += (Seed + 1);
             return new Card()
             {
