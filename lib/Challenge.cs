@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace lib
 {
@@ -8,6 +9,7 @@ namespace lib
         public PlayerController Player { get; }
         public PlayerController Accepter { get; private set; }
         public SealedDeck Deck { get; private set; }
+        public event EventHandler ChallengeAccepted;
 
         private Challenge(PlayerController playerController)
         {
@@ -26,6 +28,7 @@ namespace lib
             {
                 Accepter = accepter;
                 Open = false;
+                ChallengeAccepted?.Invoke(this, EventArgs.Empty);
             }
         }
 

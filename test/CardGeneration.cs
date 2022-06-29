@@ -55,21 +55,4 @@ public class CardGeneration
         
         Assert.That(withAdverbs.Count, Is.EqualTo(8));
     }
-
-//    [Test]
-    public void EightOfCardsHaveAMetaComponent()
-    {
-        var generator = Generator.FromSeed(0);
-        List<Card> withMeta = new List<Card>();
-        for (int i = 0; i < 64; ++i)
-        {
-            var card = generator.Roll();
-            if (card.Meta != null)
-            {
-                withMeta.Add(card);
-            }
-        }
-        
-        Assert.IsTrue(withMeta.Count == 8);
-    }
 }

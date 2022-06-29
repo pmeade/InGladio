@@ -46,6 +46,7 @@
         <Compile Include="Adjective.cs" />
         <Compile Include="Challenge.cs" />
         <Compile Include="Choice.cs" />
+        <Compile Include="ClientController.cs" />
         <Compile Include="Deck.cs" />
         <Compile Include="Generator.cs" />
         <Compile Include="LootTable.cs" />

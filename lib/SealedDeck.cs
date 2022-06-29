@@ -1,4 +1,6 @@
-﻿namespace lib
+﻿using System.Collections.Generic;
+
+namespace lib
 {
     public class SealedDeck 
     {
