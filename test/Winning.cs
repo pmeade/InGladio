@@ -18,11 +18,6 @@ public class Winning
         this.match = leftPlayer.StartMatch();
     }
 
-    private Card rock()
-    {
-        return new Card();
-    }
-
     [Test]
     public void WinOnOpponentWithZeroHealth()
     {
@@ -30,14 +25,14 @@ public class Winning
         Assert.IsTrue(match.Active);
         Assert.IsTrue(match.Started);
 
-        leftPlayer.ChooseMove(rock(), Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(rock(), leftPlayer);
+        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer);
         match.Resolve();
-        leftPlayer.ChooseMove(rock(), Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(rock(), leftPlayer);
+        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer);
         match.Resolve();
-        leftPlayer.ChooseMove(rock(), Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(rock(), leftPlayer);
+        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer);
         match.Resolve();
 
         Assert.IsTrue(leftPlayer.Dead);
@@ -54,14 +49,14 @@ public class Winning
         Assert.IsTrue(match.Active);
         Assert.IsTrue(match.Started);
 
-        leftPlayer.ChooseStrike(rock(), rightPlayer);
-        rightPlayer.ChooseStrike(rock(), leftPlayer);
+        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer);
         match.Resolve();
-        leftPlayer.ChooseStrike(rock(), rightPlayer);
-        rightPlayer.ChooseStrike(rock(), leftPlayer);
+        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer);
         match.Resolve();
-        leftPlayer.ChooseStrike(rock(), rightPlayer);
-        rightPlayer.ChooseStrike(rock(), leftPlayer);
+        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer);
         match.Resolve();
 
         Assert.IsTrue(leftPlayer.Dead);
@@ -78,14 +73,14 @@ public class Winning
         Assert.IsTrue(match.Active);
         Assert.IsTrue(match.Started);
 
-        leftPlayer.ChooseMove(rock(), Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(rock(), match.Basket);
+        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
         match.Resolve();
-        leftPlayer.ChooseMove(rock(), Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(rock(), match.Basket);
+        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
         match.Resolve();
-        leftPlayer.ChooseMove(rock(), Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(rock(), match.Basket);
+        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
         match.Resolve();
 
         Assert.IsTrue(match.Basket.Open);
@@ -102,14 +97,14 @@ public class Winning
         Assert.IsTrue(match.Active);
         Assert.IsTrue(match.Started);
 
-        leftPlayer.ChooseMove(rock(), Place.Square, leftPlayer);
-        rightPlayer.ChooseMove(rock(), Place.Square, rightPlayer);
+        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer);
+        rightPlayer.ChooseMove(Card.BasicMove(), Place.Square, rightPlayer);
         match.Resolve();
-        leftPlayer.ChooseStrike(rock(), match.Basket);
-        rightPlayer.ChooseStrike(rock(), match.Basket);
+        leftPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
         match.Resolve();
-        leftPlayer.ChooseStrike(rock(), match.Basket);
-        rightPlayer.ChooseStrike(rock(), match.Basket);
+        leftPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
         match.Resolve();
 
         Assert.IsFalse(match.Basket.Open);
@@ -125,17 +120,17 @@ public class Winning
         Assert.IsTrue(match.Active);
         Assert.IsTrue(match.Started);
 
-        leftPlayer.ChooseMove(rock(), Place.Square, leftPlayer);
-        rightPlayer.ChooseMove(rock(), Place.Square, rightPlayer);
+        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer);
+        rightPlayer.ChooseMove(Card.BasicMove(), Place.Square, rightPlayer);
         match.Resolve();
-        leftPlayer.ChooseStrike(rock(), match.Basket);
-        rightPlayer.ChooseStrike(rock(), match.Basket);
+        leftPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
         match.Resolve();
-        leftPlayer.ChooseStrike(rock(), match.Basket);
-        rightPlayer.ChooseStrike(rock(), match.Basket);
+        leftPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
         match.Resolve();
-        leftPlayer.ChooseStrike(rock(), match.Basket);
-        rightPlayer.ChooseMove(rock(), Place.Curtain, rightPlayer);
+        leftPlayer.ChooseStrike(Card.BasicStrike(), match.Basket);
+        rightPlayer.ChooseMove(Card.BasicMove(), Place.Curtain, rightPlayer);
         match.Resolve();
 
         Assert.IsTrue(match.Basket.Open);
@@ -151,8 +146,8 @@ public class Winning
         {
             Assert.IsTrue(match.Active);
             Assert.IsTrue(match.Round == i);
-            leftPlayer.ChooseMove(rock(), Place.Steps, leftPlayer);
-            rightPlayer.ChooseMove(rock(), Place.Steps, rightPlayer);
+            leftPlayer.ChooseMove(Card.BasicMove(), Place.Steps, leftPlayer);
+            rightPlayer.ChooseMove(Card.BasicMove(), Place.Steps, rightPlayer);
             match.Resolve();
         }
         

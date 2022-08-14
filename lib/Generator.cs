@@ -4,21 +4,14 @@ namespace lib
 {
     public class Generator
     {
-        public static Generator FromSeed(uint seed)
+        public static Generator FromSeed(int seed)
         {
-            if (seed == UInt32.MaxValue)
-            {
-                return new Generator() { Valid = false };
-            }
-            
-            var generator = new Generator { Seed = seed, Valid = true};
-            generator.BaseCardIndex = seed;
+            var generator = new Generator { Valid = true};
+            generator.random = new Random(seed);
             return generator;
         }
 
-        public uint Seed { get; private set; }
-        
-        public uint BaseCardIndex { get; private set; }
+        private Random random;
         public bool Valid { get; private set; }
 
         public Card Roll()
@@ -29,13 +22,31 @@ namespace lib
             }
 
             var card = new Card();
+
+            card.Choice = (Choice)(nextRoll(card) % 3);
             card.Platonic = (Platonic)(nextRoll(card) % 3);
             var powerRoll = nextRoll(card) % 16;
-            card.Power = (powerRoll > 11) ? Power.Eight : powerRoll > 7 ? Power.Five : Power.Three;
-            card.Adjective = Adjective.Get(nextRoll(card));
-            card.Adverb = (card.Adjective != null) ? Adverb.Get(nextRoll(card)) : null;
-            card.Origin = Origin.Get(nextRoll(card));
-            card.Meta = (card.Origin != null) ? Meta.Get(nextRoll(card)):null;
+            
+            card.Power = (powerRoll > 13) ? Power.Eight : powerRoll > 9 ? Power.Five : Power.Three;
+
+            if (nextRoll(card) % 4 == 0)
+            {
+                card.Adjective = Adjective.Get(nextRoll(card));
+
+                if (nextRoll(card) % 6 == 0)
+                {
+                    card.Adverb = Adverb.Get(nextRoll(card));
+                }
+            }
+            
+            if (nextRoll(card) % 6 == 0)
+            {
+                card.Origin = Origin.Get(nextRoll(card));
+                if (nextRoll(card) % 8 == 0)
+                {
+                    card.Meta = Meta.Get(nextRoll(card));
+                }
+            }
 
 
             return card;
@@ -43,8 +54,7 @@ namespace lib
 
         private uint nextRoll(Card card)
         {
-            BaseCardIndex += (uint)card.GetHashCode();
-            return BaseCardIndex;
+            return (uint)random.Next();
         }
     }
 }

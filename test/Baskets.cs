@@ -29,11 +29,11 @@ public class Baskets
     public void BasketCreatesACardWith17RollsAtLootTable()
     {
         Assert.IsNull(match.Basket.Card);
-        leftPlayer.ChooseStrike(new Card(), rightPlayer);
-        rightPlayer.ChooseParry(new Card());
+        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer);
+        rightPlayer.ChooseParry(Card.BasicParry());
         match.Resolve();
-        leftPlayer.ChooseStrike(new Card(), rightPlayer);
-        rightPlayer.ChooseParry(new Card());
+        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer);
+        rightPlayer.ChooseParry(Card.BasicParry());
         match.Resolve();
         Assert.IsNotNull(match.Basket.Card);
         Assert.IsTrue(match.Basket.Card.CardAttributes.Count == 17);

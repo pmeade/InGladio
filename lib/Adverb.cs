@@ -4,22 +4,6 @@
     {
         private static Adverb[] adverbs = new Adverb[]
         {
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             new Adverb(){Name = "Earnestly"},
             new Adverb(){Name = "Impressively"},
             new Adverb(){Name = "Nearby"},
@@ -29,7 +13,7 @@
             new Adverb(){Name = "Hopefully"},
             new Adverb(){Name = "Backwards"}
         };
-        public string Name { get; private set; }
+        public string Name { get;  set; }
 
         public static Adverb Get(uint index)
         {

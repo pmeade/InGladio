@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib", "lib\lib.csproj", "{1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cardgen", "cardgen\cardgen.csproj", "{862691BC-4796-4C6D-9B91-DD4DDEEE3086}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "client\client.csproj", "{2D13CE66-57A4-4624-84CB-937FBE728719}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{862691BC-4796-4C6D-9B91-DD4DDEEE3086}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{862691BC-4796-4C6D-9B91-DD4DDEEE3086}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{862691BC-4796-4C6D-9B91-DD4DDEEE3086}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D13CE66-57A4-4624-84CB-937FBE728719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D13CE66-57A4-4624-84CB-937FBE728719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D13CE66-57A4-4624-84CB-937FBE728719}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D13CE66-57A4-4624-84CB-937FBE728719}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

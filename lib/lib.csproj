@@ -48,6 +48,7 @@
         <Compile Include="Choice.cs" />
         <Compile Include="ClientController.cs" />
         <Compile Include="Deck.cs" />
+        <Compile Include="Game.cs" />
         <Compile Include="Generator.cs" />
         <Compile Include="LootTable.cs" />
         <Compile Include="Match.cs" />

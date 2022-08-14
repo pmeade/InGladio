@@ -29,7 +29,7 @@
             new Meta() {Name = "Everlasting"},
             new Meta() {Name = "Sublime"}
         };
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         public static Meta Get(uint index)
         {

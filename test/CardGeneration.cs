@@ -12,14 +12,6 @@ public class CardGeneration
         Assert.IsNotNull(validGenerator.Valid);
     }
 
-    [Test]
-    public void SeedLessThan0xffffffff()
-    {
-        var generatorMax = Generator.FromSeed(UInt32.MaxValue);
-        Assert.False(generatorMax.Valid);
-        Assert.IsNull(generatorMax.Roll());
-    }
-
     //[Test]
     public void CyclesThroughEightOrigins()
     {

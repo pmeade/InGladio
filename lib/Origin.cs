@@ -6,14 +6,6 @@ namespace lib
     {
         private static Origin[] classes = new Origin[]
         {
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             new Origin() {Name = "Day"},
             new Origin() {Name = "Night"},
             new Origin() {Name = "Wood"},
@@ -24,7 +16,7 @@ namespace lib
             new Origin() {Name = "End"}
         };
         
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         public static Origin Get(uint index)
         {

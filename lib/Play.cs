@@ -18,6 +18,10 @@ namespace lib
 
         public static Play Move(Card card, Place place, Target target)
         {
+            if (card.Choice != Choice.Move)
+            {
+                return null;
+            }
             return new MovePlay(card, place, target);
         }
 
@@ -46,6 +50,10 @@ namespace lib
 
         internal static Play Parry(Card card, Target target)
         {
+            if (card.Choice != Choice.Parry)
+            {
+                return null;
+            }
             return new ParryPlay(card, target);
         }
 
@@ -71,6 +79,10 @@ namespace lib
 
         public static Play Strike(Card card, Target target)
         {
+            if (card.Choice != Choice.Strike)
+            {
+                return null;
+            }
             return new StrikePlay(card, target);
         }
 
