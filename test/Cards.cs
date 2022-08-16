@@ -15,7 +15,7 @@ public class Cards
         this.rightPlayer = new PlayerController();
         var challenge = leftPlayer.CreateChallenge();
         rightPlayer.AcceptChallenge(challenge);
-        this.match = leftPlayer.StartMatch();
+        this.match = leftPlayer.StartMatch(true);
     }
 
     [Test]

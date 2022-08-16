@@ -86,8 +86,8 @@ namespace lib
         private void ChallengeAccepted(Match match)
         {
             this.match = match;
-            this.Opponent = match.Challenge.challenger;
-            match.Challenge.challenger.Opponent = this;
+            this.Opponent = match.Challenge.Challenger;
+            match.Challenge.Challenger.Opponent = this;
             Deck = match.LeftDeck;
         }
 
@@ -110,13 +110,13 @@ namespace lib
             return match.CanPlay(this);
         }
 
-        public Match StartMatch()
+        public Match StartMatch(bool isHost)
         {
             if (match != null && match.Active && !match.Started)
             {
-                Opponent = match.Challenge.challenger;
+                Opponent = isHost ? match.Challenge.Challenger : match.Challenge.Host;
                 Opponent.Opponent = this;
-                match.Start(this);
+                match.Start();
             }
 
             return match;

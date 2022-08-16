@@ -7,7 +7,7 @@ namespace lib
     {
         public bool Open { get; protected set; }
         public PlayerController Host { get; }
-        public PlayerController challenger { get; private set; }
+        public PlayerController Challenger { get; private set; }
         public event EventHandler ChallengeAccepted;
 
         private Challenge(PlayerController playerController)
@@ -25,7 +25,7 @@ namespace lib
         {
             if (Open)
             {
-                challenger = accepter;
+                Challenger = accepter;
                 Open = false;
                 ChallengeAccepted?.Invoke(this, EventArgs.Empty);
             }

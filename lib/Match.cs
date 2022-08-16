@@ -14,15 +14,15 @@ namespace lib
 
         private Match(Challenge challenge)
         {
-            this.seed = challenge.Host.Seed ^ challenge.challenger.Seed;
+            this.seed = challenge.Host.Seed ^ challenge.Challenger.Seed;
             this.host = challenge.Host;
-            this.challenger = challenge.challenger;
+            this.challenger = challenge.Challenger;
             this.Active = true;
             this.Challenge = challenge;
             this.generator = Generator.FromSeed(seed);
             this.Basket = new Basket(this.generator);
             host.Deck = (challenge.Host.Deck as SealedDeck)?.Unsealed() ?? Deck.Random(this.generator);
-            challenger.Deck = challenge.challenger.Deck ?? Deck.Random(this.generator);
+            challenger.Deck = challenge.Challenger.Deck ?? Deck.Random(this.generator);
         }
 
         protected Match()
@@ -61,7 +61,7 @@ namespace lib
                     || playerController == challenger && rightPlay == null);
         }
 
-        public void Start(PlayerController playerController)
+        public void Start()
         {
             Started = true;
             Board = new Board();

@@ -37,7 +37,7 @@ public class Starting
         var acceptedMatch = rightPlayer.AcceptChallenge(challenge);
 
         Assert.False(challenge.Open);
-        Assert.True(challenge.challenger == rightPlayer);
+        Assert.True(challenge.Challenger == rightPlayer);
         Assert.True(leftPlayer.Opponent == rightPlayer);
         Assert.True(rightPlayer.Opponent == leftPlayer);
         Assert.True(acceptedMatch.Challenge == challenge);
@@ -57,7 +57,7 @@ public class Starting
     {
         var match = createAcceptedMatch();
         Assert.True(match.Started == false);
-        leftPlayer.StartMatch();
+        leftPlayer.StartMatch(true);
         Assert.True(match.Started == true);
     }
 

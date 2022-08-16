@@ -17,19 +17,6 @@ public class NetGame
     public Turn YourTurn()
     {
         dumpGameDetails();
-        var messages = new List<Message>();
-        switch (gameState)
-        {
-            case EGameState.Init:
-                Console.WriteLine("Round {0}", ++round);
-                dumpScores();
-                dumpCards(match.LeftDeck);
-                dumpBasket();
-                dumpCards(match.RightDeck);
-                // messages.Add(makePlay());
-                break;
-                
-        }
 
         var key = ConsoleKey.Clear;
         while (key < ConsoleKey.D1 || key > ConsoleKey.D8)
@@ -161,12 +148,17 @@ public class NetGame
     private void dumpScores()
     {
         Console.WriteLine("Host {0}     Challenger {1}     Basket {2}", 
-            match.Challenge.Host.Health, match.Challenge.challenger.Health, match.Basket.Health);
+            match.Challenge.Host.Health, match.Challenge.Challenger.Health, match.Basket.Health);
     }
 
     private void dumpGameDetails()
     {
         Console.WriteLine("In Gladio");
+        Console.WriteLine("Round {0}", ++round);
+        dumpScores();
+        dumpCards(match.LeftDeck);
+        dumpBasket();
+        dumpCards(match.RightDeck);
     }
 
     public bool Closed { get; private set; } = false;
@@ -221,6 +213,10 @@ public class NetGame
         them.PlayCard(opponentsTurn.Message.Card, opponentsTurn.Message.Data);
         
         match.Resolve();
+        if (match.Complete)
+        {
+            Closed = true;
+        }
     }
 
     private PlayerController _getRemotePlayer()
@@ -231,5 +227,10 @@ public class NetGame
     private PlayerController _getLocalPlayer()
     {
         return (playerType == EPlayerType.Host) ? match.GetHost() : match.GetChallenger();
+    }
+
+    public void Start()
+    {
+        match.Start();
     }
 }

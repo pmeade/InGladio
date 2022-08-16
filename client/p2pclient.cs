@@ -65,6 +65,9 @@ public class p2pclient
         NetGame netGame = playerType == NetGame.EPlayerType.Host
             ? NetGame.Host(details, challengerDetails)
             : NetGame.Challenge(details, challengerDetails);
+
+        netGame.Start();
+        
         playGame(netGame);
     }
 
