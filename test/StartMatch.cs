@@ -19,7 +19,7 @@ public class Starting
     {
         var challenge = leftPlayer.CreateChallenge();
         Assert.True(challenge.Open);
-        Assert.True(challenge.Player == leftPlayer);
+        Assert.True(challenge.Host == leftPlayer);
     }
 
     [Test]
@@ -37,7 +37,7 @@ public class Starting
         var acceptedMatch = rightPlayer.AcceptChallenge(challenge);
 
         Assert.False(challenge.Open);
-        Assert.True(challenge.Accepter == rightPlayer);
+        Assert.True(challenge.challenger == rightPlayer);
         Assert.True(leftPlayer.Opponent == rightPlayer);
         Assert.True(rightPlayer.Opponent == leftPlayer);
         Assert.True(acceptedMatch.Challenge == challenge);
@@ -64,8 +64,8 @@ public class Starting
     [Test]
     public void PlayersCanChallengeWithADeck()
     {
-        var leftDeck = Deck.Random();
-        var rightDeck = Deck.Random();
+        var leftDeck = Deck.Random(Generator.FromSeed(1));
+        var rightDeck = Deck.Random(Generator.FromSeed(1));
 
         Assert.False(leftDeck.Equals(rightDeck));
         
@@ -89,11 +89,11 @@ public class Starting
     [Test]
     public void PremadeDecksAreSealedUntilActive()
     {
-        var leftDeck = Deck.Random();
+        var leftDeck = Deck.Random(Generator.FromSeed(1));
         Assert.NotNull(leftDeck.Get(0));
         var sealedDeck = leftDeck.Sealed();
         var challenge = leftPlayer.CreateChallenge(sealedDeck);
-        var match = rightPlayer.AcceptChallenge(challenge, Deck.Random());
+        var match = rightPlayer.AcceptChallenge(challenge, Deck.Random(Generator.FromSeed(1)));
         
         Assert.IsTrue(match.LeftDeck.Equals(leftDeck));
     }

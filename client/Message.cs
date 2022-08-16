@@ -1,11 +1,13 @@
-﻿namespace client;
+﻿using System.Text;
+using lib;
 
-public class Message
+namespace client;
+
+public abstract class Message
 {
     public enum EMessageType
     {
-        Done,
-        Quit,
+        Play,
         Start
     }
 
@@ -17,7 +19,10 @@ public class Message
         foreach (var messageData in parts)
         {
             var message = decode(messageData);
-            messages.Add(message);
+            if (message != null)
+            {
+                messages.Add(message);
+            }
         }
 
         return messages;
@@ -25,18 +30,70 @@ public class Message
 
     private static Message decode(string messageData)
     {
-        return new Message();
+        var parts = messageData.Split(DELIM);
+        EMessageType messageType;
+        if (EMessageType.TryParse(parts[0], true, out messageType))
+        {
+            switch (messageType)
+            {
+                case EMessageType.Start:
+                    return StartMessage.FromNet(parts);
+                case EMessageType.Play:
+                    return PlayMessage.FromNet(parts);
+            }
+        }
+
+        return null;
     }
+
+    private const char DELIM = ',';
 
     private const char EOM = '|';
 
-    public static Message Done()
+    public static Message Start(string name, string seed)
     {
-        return new Message() { MessageType = EMessageType.Done };
+        return new StartMessage(name, seed);
     }
-    
-    public static Message Start()
+
+    public byte[] ToNet()
     {
-        return new Message() { MessageType = EMessageType.Start };
+        StringBuilder sb = new StringBuilder();
+        sb.AppendFormat("{0},", MessageType.ToString());
+        sb.AppendFormat("{0},", detailsToString());
+        sb.Append(EOM);
+        return System.Text.Encoding.ASCII.GetBytes(sb.ToString());
     }
+
+    protected abstract string detailsToString();
+
+    public static PlayMessage Play(uint card, string[] data)
+    {
+        return PlayMessage.Create(card, data);
+    }
+}
+
+public class PlayMessage : Message
+{
+    public uint Card { get; private set; }
+    public string[] Data { get; private set; }
+
+    private PlayMessage()
+    {
+    }
+
+    protected override string detailsToString()
+    {
+        return String.Format("{0},{1}", Card.ToString(), string.Join(',', Data));
+    }
+
+    public static PlayMessage Create(uint card, string[] data)
+    {
+        return new PlayMessage()
+        {
+            Card = card,
+            Data = data
+        };
+    }
+
+    public static Message FromNet(string[] parts) => Create(UInt32.Parse(parts[1]), new[] { parts[2]} );
 }

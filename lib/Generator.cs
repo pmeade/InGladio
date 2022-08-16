@@ -14,7 +14,7 @@ namespace lib
         private Random random;
         public bool Valid { get; private set; }
 
-        public Card Roll()
+        public Card Roll(int bonusTries = 0)
         {
             if (!Valid)
             {
@@ -23,38 +23,68 @@ namespace lib
 
             var card = new Card();
 
-            card.Choice = (Choice)(nextRoll(card) % 3);
-            card.Platonic = (Platonic)(nextRoll(card) % 3);
-            var powerRoll = nextRoll(card) % 16;
-            
-            card.Power = (powerRoll > 13) ? Power.Eight : powerRoll > 9 ? Power.Five : Power.Three;
+            card.Choice = (Choice)(nextRoll() % 3);
+            card.Platonic = (Platonic)(nextRoll() % 3);
+            card.Power = Power.Three;
 
-            if (nextRoll(card) % 4 == 0)
+            while (bonusTries > 0)
             {
-                card.Adjective = Adjective.Get(nextRoll(card));
-
-                if (nextRoll(card) % 6 == 0)
+                if (card.Power == Power.Three && nextRoll()%16 > 9)
                 {
-                    card.Adverb = Adverb.Get(nextRoll(card));
+                    card.Power = Power.Five;
+                    --bonusTries;
+                    continue;
                 }
-            }
-            
-            if (nextRoll(card) % 6 == 0)
-            {
-                card.Origin = Origin.Get(nextRoll(card));
-                if (nextRoll(card) % 8 == 0)
-                {
-                    card.Meta = Meta.Get(nextRoll(card));
-                }
-            }
 
+                if (card.Power == Power.Five && nextRoll()%16 > 13)
+                {
+                    card.Power = Power.Eight;
+                    --bonusTries;
+                    continue;
+                }
+                
+                if (card.Adjective == null && nextRoll() % 4 == 0)
+                {
+                    card.Adjective = Adjective.Get(nextRoll());
+                    --bonusTries;
+                    continue;
+                }
+
+                if (card.Adjective != null && card.Adverb == null && nextRoll() % 6 == 0)
+                {
+                    card.Adverb = Adverb.Get(nextRoll());
+                    --bonusTries;
+                    continue;
+                }
+
+                if (card.Origin == null && nextRoll() % 6 == 0)
+                {
+                    card.Origin = Origin.Get(nextRoll());
+                    --bonusTries;
+                    continue;
+                }
+
+                if (card.Origin != null && card.Meta == null && nextRoll() % 8 == 0)
+                {
+                    card.Meta = Meta.Get(nextRoll());
+                    --bonusTries;
+                    continue;
+                }
+
+                --bonusTries;
+            }
 
             return card;
         }
 
-        private uint nextRoll(Card card)
+        private uint nextRoll()
         {
             return (uint)random.Next();
+        }
+
+        public int Next()
+        {
+            return random.Next();
         }
     }
 }

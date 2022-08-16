@@ -6,15 +6,14 @@ namespace lib
     public class Challenge
     {
         public bool Open { get; protected set; }
-        public PlayerController Player { get; }
-        public PlayerController Accepter { get; private set; }
-        public SealedDeck Deck { get; private set; }
+        public PlayerController Host { get; }
+        public PlayerController challenger { get; private set; }
         public event EventHandler ChallengeAccepted;
 
         private Challenge(PlayerController playerController)
         {
             this.Open = true;
-            this.Player = playerController;
+            this.Host = playerController;
         }
 
         public Challenge()
@@ -26,7 +25,7 @@ namespace lib
         {
             if (Open)
             {
-                Accepter = accepter;
+                challenger = accepter;
                 Open = false;
                 ChallengeAccepted?.Invoke(this, EventArgs.Empty);
             }
@@ -34,10 +33,8 @@ namespace lib
 
         public static Challenge Prebuilt(PlayerController playerController, SealedDeck deck)
         {
-            return new Challenge(playerController)
-            {
-                Deck = deck
-            };
+            playerController.Deck = deck;
+            return new Challenge(playerController);
         }
 
         public static Challenge Random(PlayerController playerController)

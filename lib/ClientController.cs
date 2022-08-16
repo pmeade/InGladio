@@ -40,7 +40,7 @@ namespace lib
 
         public Challenge MakeChallenge()
         {
-            return _makeChallenge(Deck.Random());
+            return _makeChallenge();
         }
 
         public Challenge MakeChallenge(int deckIndex)
@@ -50,12 +50,13 @@ namespace lib
                 return null;
             }
 
-            return _makeChallenge(Decks[deckIndex]);
+            playerController.Deck = Decks[deckIndex]; 
+            return _makeChallenge();
         }
 
-        private Challenge _makeChallenge(Deck deck)
+        private Challenge _makeChallenge()
         {
-            var challenge = playerController.CreateChallenge(deck.Sealed());
+            var challenge = playerController.CreateChallenge();
             challenge.ChallengeAccepted += ChallengeAccepted;
             return challenge;
         }

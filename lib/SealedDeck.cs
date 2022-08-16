@@ -2,10 +2,10 @@
 
 namespace lib
 {
-    public class SealedDeck 
+    public class SealedDeck : Deck
     {
         private Deck internalDeck;
-        public SealedDeck(Deck deck)
+        public SealedDeck(Deck deck) : base(deck.cards)
         {
             this.internalDeck = deck;
         }

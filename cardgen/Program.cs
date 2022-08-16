@@ -11,6 +11,6 @@ var count = args.Length > 1 ? int.Parse(args[1]) : 64;
 
 for (int i = 0; i < count; ++i)
 {
-    var card = generator.Roll();
-    Console.WriteLine(card.ToPrettyString());
+    var card = generator.Roll(generator.Next() % ((i%8)+1));
+    Console.WriteLine(i + " " + card.ToPrettyString());
 }

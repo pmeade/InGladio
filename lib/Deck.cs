@@ -25,9 +25,9 @@ namespace lib
         }
 
         private const int DefaultDeckSize = 8;
-        private Card[] cards;
+        protected internal Card[] cards;
 
-        private Deck(Card[] cards)
+        protected Deck(Card[] cards)
         {
             this.cards = new Card[DefaultDeckSize];
             
@@ -65,9 +65,19 @@ namespace lib
             return new Deck(chosenCards);
         }
 
-        public static Deck Random()
+        public static Deck Random(Generator generator)
         {
-            return new Deck(new Card[]{});
+            return new Deck(new Card[]
+            {
+                generator.Roll(1),
+                generator.Roll(1),
+                generator.Roll(1),
+                generator.Roll(2),
+                generator.Roll(2),
+                generator.Roll(3),
+                generator.Roll(4),
+                generator.Roll(5)
+            });
         }
 
         public Card Play(uint index)

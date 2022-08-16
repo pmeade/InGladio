@@ -21,7 +21,7 @@ public class Decks
     [Test]
     public void RandomDeckHasEightCards()
     {
-        var deck = Deck.Random();
+        var deck = Deck.Random(Generator.FromSeed(1));
         Assert.IsTrue(deck.Count == 8);
     }
 

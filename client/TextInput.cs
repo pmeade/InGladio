@@ -6,6 +6,7 @@ public class TextInput
 {
     public static ConsoleKey Get(Dictionary<ConsoleKey, string> choices)
     {
+        Console.WriteLine();
         StringBuilder sb = new StringBuilder();
         foreach (var option in choices)
         {

@@ -22,20 +22,6 @@ public class Baskets
     public void BasketHidesContentsUntilOpen()
     {
         Assert.IsFalse(match.Basket.Open);
-        Assert.IsNull(match.Basket.Card);
-    }
-
-    [Test]
-    public void BasketCreatesACardWith17RollsAtLootTable()
-    {
-        Assert.IsNull(match.Basket.Card);
-        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer);
-        rightPlayer.ChooseParry(Card.BasicParry());
-        match.Resolve();
-        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer);
-        rightPlayer.ChooseParry(Card.BasicParry());
-        match.Resolve();
-        Assert.IsNotNull(match.Basket.Card);
-        Assert.IsTrue(match.Basket.Card.CardAttributes.Count == 17);
+        Assert.IsNull(match.Basket.Reward);
     }
 }

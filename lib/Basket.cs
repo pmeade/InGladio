@@ -6,17 +6,20 @@ namespace lib
 {
     public class Basket : Target
     {
-        private readonly LootTable lootTable;
-        public Card Card { get; private set; }
+        private readonly Generator generator;
+        public Card Reward { get; private set; }
+        
+        public Card Face { get; private set; }
         public int Health { get; private set; } = 3;
         public Place Place { get; private set; } = Place.Square;
         public bool Open { get; private set; } = false;
         public PlayerController SnatchedBy { get; private set; }
         public List<PlayerController> damageDealers { get; } = new List<PlayerController>();
 
-        public Basket(LootTable lootTable)
+        public Basket(Generator generator)
         {
-            this.lootTable = lootTable;
+            this.generator = generator;
+            this.Face = this.generator.Roll();
         }
 
         public void TakeDamage(int amount, PlayerController dealer)
@@ -45,7 +48,7 @@ namespace lib
         {
             Open = true;
             SnatchedBy = playerController;
-            this.Card = lootTable.Roll(17);
+            this.Reward = this.generator.Roll(17);
         }
     }
 }

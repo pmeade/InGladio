@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <Compile Remove="Cardset.cs" />
+      <Compile Remove="Client.cs" />
     </ItemGroup>
 
 </Project>

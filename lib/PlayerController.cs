@@ -54,14 +54,14 @@ namespace lib
                 return new FailedMatch();
             }
 
-            if (otherChallenge.Deck == null)
-            {
-                return new FailedMatch();
-            }
-            
+            Deck = myDeck;
             otherChallenge.Accept(this);
-            match = Match.Prebuilt(otherChallenge, this, myDeck);
-            otherChallenge.Player.ChallengeAccepted(match);
+            match = Match.Create(otherChallenge);
+            if (Deck == null)
+            {
+                Deck = match.RightDeck;
+            }
+            otherChallenge.Host.ChallengeAccepted(match);
             return match;
         }
 
@@ -78,16 +78,17 @@ namespace lib
             }
             
             otherChallenge.Accept(this);
-            match = Match.Random(otherChallenge, this);
-            otherChallenge.Player.ChallengeAccepted(match);
+            match = Match.Create(otherChallenge);
+            otherChallenge.Host.ChallengeAccepted(match);
             return match;
         }
 
         private void ChallengeAccepted(Match match)
         {
             this.match = match;
-            this.Opponent = match.Challenge.Accepter;
-            match.Challenge.Accepter.Opponent = this;
+            this.Opponent = match.Challenge.challenger;
+            match.Challenge.challenger.Opponent = this;
+            Deck = match.LeftDeck;
         }
 
         private class FailedMatch : Match
@@ -113,7 +114,7 @@ namespace lib
         {
             if (match != null && match.Active && !match.Started)
             {
-                Opponent = match.Challenge.Accepter;
+                Opponent = match.Challenge.challenger;
                 Opponent.Opponent = this;
                 match.Start(this);
             }
@@ -172,10 +173,33 @@ namespace lib
         }
 
         public List<Match> completedMatches { get; } = new List<Match>();
+        public int Seed { get; set; }
+        public Deck Deck { get; set; }
 
         public void HealSelf(int amount)
         {
             Health = Math.Min(Health + 3, 3);
+        }
+
+        public void PlayCard(uint cardIndex, string[] data)
+        {
+            var card = Deck.Get(cardIndex);
+            switch (card.Choice)
+            {
+                case Choice.Move:
+                    Place moveLocation;
+                    Place.TryParse(data[0], true, out moveLocation);
+                    Move(moveLocation);
+                    break;
+                
+                case Choice.Parry:
+                    ChooseParry(card);
+                    break;
+                
+                case Choice.Strike:
+                    ChooseStrike(card, Opponent);
+                    break;
+            }
         }
     }
 }

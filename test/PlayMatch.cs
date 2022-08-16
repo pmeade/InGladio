@@ -22,7 +22,7 @@ public class Playing
     public void PlayerCanPlayCardFromDeck()
     {
         Assert.True(leftPlayer.CanPlay());
-        var deck = Deck.Random();
+        var deck = Deck.Random(Generator.FromSeed(1));
         leftPlayer.ChooseMove(deck.Get(0), Place.Square, leftPlayer);
         Assert.False(leftPlayer.CanPlay());
     }

@@ -43,9 +43,9 @@ namespace lib
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(string.Format("{0} --- {1} ---", Choice.ToString(), Power.ToString()));
-            if (Adjective != null)
+            if (Adjective != null && Adjective.Name.Length != 0)
             {
-                if (Adverb != null)
+                if (Adverb != null && Adverb.Name.Length != 0)
                 {
                     sb.Append(string.Format(" {0}", Adverb.Name));
                 }
@@ -55,10 +55,10 @@ namespace lib
 
             sb.Append(string.Format(" {0}", Platonic.ToString()));
 
-            if (Origin != null)
+            if (Origin != null && Origin.Name.Length != 0)
             {
                 sb.Append(" of the");
-                if (Meta != null)
+                if (Meta != null && Meta.Name.Length != 0)
                 {
                     sb.Append(string.Format(" {0}", Meta.Name));
                 }

@@ -4,18 +4,25 @@ namespace lib
 {
     public class Match
     {
-        private PlayerController leftPlayer;
-        private PlayerController rightPlayer;
+        private PlayerController host;
+        private PlayerController challenger;
         private Play leftPlay;
         private Play rightPlay;
+        private Generator generator;
+        public Deck LeftDeck => host.Deck;
+        public Deck RightDeck => challenger.Deck;
 
-        private Match(Challenge challenge, PlayerController acceptingPlayer)
+        private Match(Challenge challenge)
         {
-            this.leftPlayer = challenge.Player;
-            this.rightPlayer = acceptingPlayer;
+            this.seed = challenge.Host.Seed ^ challenge.challenger.Seed;
+            this.host = challenge.Host;
+            this.challenger = challenge.challenger;
             this.Active = true;
             this.Challenge = challenge;
-            this.Basket = new Basket(new LootTable());
+            this.generator = Generator.FromSeed(seed);
+            this.Basket = new Basket(this.generator);
+            host.Deck = (challenge.Host.Deck as SealedDeck)?.Unsealed() ?? Deck.Random(this.generator);
+            challenger.Deck = challenge.challenger.Deck ?? Deck.Random(this.generator);
         }
 
         protected Match()
@@ -37,12 +44,12 @@ namespace lib
                 return;
             }
 
-            if (player == leftPlayer)
+            if (player == host)
             {
                 leftPlay = play;
             }
 
-            if (player == rightPlayer)
+            if (player == challenger)
             {
                 rightPlay = play;
             }
@@ -50,17 +57,14 @@ namespace lib
 
         public bool CanPlay(PlayerController playerController)
         {
-            return (playerController == leftPlayer && leftPlay == null
-                    || playerController == rightPlayer && rightPlay == null);
+            return (playerController == host && leftPlay == null
+                    || playerController == challenger && rightPlay == null);
         }
 
         public void Start(PlayerController playerController)
         {
-            if (playerController == leftPlayer && Active && !Started)
-            {
-                Started = true;
-                Board = new Board();
-            }
+            Started = true;
+            Board = new Board();
         }
 
         private Dictionary<Platonic, Platonic> burns = new Dictionary<Platonic, Platonic>()
@@ -76,8 +80,7 @@ namespace lib
             { Choice.Parry, Choice.Strike }
         };
 
-        public Deck LeftDeck { get; private set; }
-        public Deck RightDeck { get; private set; }
+        private readonly int seed;
 
         public void Resolve()
         {
@@ -105,55 +108,55 @@ namespace lib
         {
             Basket.CheckForVictory();
 
-            if (leftPlayer.Dead && !rightPlayer.Dead)
+            if (host.Dead && !challenger.Dead)
             {
                 Active = false;
                 Complete = true;
-                Winner = rightPlayer;
-                rightPlayer.Win();
-                leftPlayer.Lose();
-                Basket.Claim(rightPlayer);
+                Winner = challenger;
+                challenger.Win();
+                host.Lose();
+                Basket.Claim(challenger);
             }
-            else if (rightPlayer.Dead && !leftPlayer.Dead)
+            else if (challenger.Dead && !host.Dead)
             {
                 Active = false;
                 Complete = true;
-                Winner = leftPlayer;
-                leftPlayer.Win();
-                rightPlayer.Lose();
-                Basket.Claim(leftPlayer);
+                Winner = host;
+                host.Win();
+                challenger.Lose();
+                Basket.Claim(host);
             }
-            else if (rightPlayer.Dead && leftPlayer.Dead)
+            else if (challenger.Dead && host.Dead)
             {
                 Active = false;
                 Complete = true;
-                leftPlayer.Lose();
-                rightPlayer.Lose();
+                host.Lose();
+                challenger.Lose();
             }
-            else if (Basket.SnatchedBy == leftPlayer)
+            else if (Basket.SnatchedBy == host)
             {
                 Active = false;
                 Complete = true;
-                Winner = leftPlayer;
-                leftPlayer.Win();
-                rightPlayer.Lose();
-                Basket.Claim(leftPlayer);
+                Winner = host;
+                host.Win();
+                challenger.Lose();
+                Basket.Claim(host);
             }
-            else if (Basket.SnatchedBy == rightPlayer)
+            else if (Basket.SnatchedBy == challenger)
             {
                 Active = false;
                 Complete = true;
-                Winner = rightPlayer;
-                rightPlayer.Win();
-                leftPlayer.Lose();
-                Basket.Claim(rightPlayer);
+                Winner = challenger;
+                challenger.Win();
+                host.Lose();
+                Basket.Claim(challenger);
             }
             else if (Round == 8)
             {
                 Active = false;
                 Complete = true;
-                rightPlayer.Lose();
-                leftPlayer.Lose();
+                challenger.Lose();
+                host.Lose();
             }
         }
 
@@ -163,13 +166,13 @@ namespace lib
         {
             if (leftPlay.Card.Platonic == burns[rightPlay.Card.Platonic])
             {
-                leftPlay.Card.OnBurned?.Invoke(leftPlayer);
+                leftPlay.Card.OnBurned?.Invoke(host);
                 Board.LeftCard = null;
             }
 
             if (rightPlay.Card.Platonic == burns[leftPlay.Card.Platonic])
             {
-                rightPlay.Card.OnBurned?.Invoke(rightPlayer);
+                rightPlay.Card.OnBurned?.Invoke(challenger);
                 Board.RightCard = null;
             }
         }
@@ -178,47 +181,38 @@ namespace lib
         {
             if (leftPlay.Wins(rightPlay))
             {
-                leftPlay.Card.OnWinHand?.Invoke(leftPlayer);
+                leftPlay.Card.OnWinHand?.Invoke(host);
             }
 
             if (rightPlay.Wins(leftPlay))
             {
-                rightPlay.Card.OnWinHand?.Invoke(rightPlayer);
+                rightPlay.Card.OnWinHand?.Invoke(challenger);
             }
             
             if (leftPlay.BigEnough(rightPlay) && !leftPlay.IsStoppedBy(rightPlay.Choice))
             {
-                leftPlay.Resolve(leftPlayer);
+                leftPlay.Resolve(host);
             }
 
             if (rightPlay.BigEnough(leftPlay) && !rightPlay.IsStoppedBy(leftPlay.Choice))
             {
-                rightPlay.Resolve(rightPlayer);
+                rightPlay.Resolve(challenger);
             }
         }
 
-        private class PlayerState
+        public static Match Create(Challenge challenge)
         {
-            public uint Health { get; set; }
-            public Place Place { get; set; } 
+            return new Match(challenge);
         }
 
-        public static Match Prebuilt(Challenge challenge, PlayerController acceptingPlayer, Deck acceptingDeck)
+        public PlayerController GetHost()
         {
-            return new Match(challenge, acceptingPlayer)
-            {
-                LeftDeck = challenge.Deck.Unsealed(),
-                RightDeck = acceptingDeck
-            };
+            return host;
         }
 
-        public static Match Random(Challenge challenge, PlayerController acceptingPlayer)
+        public PlayerController GetChallenger()
         {
-            return new Match(challenge, acceptingPlayer)
-            {
-                LeftDeck = Deck.Random(),
-                RightDeck = Deck.Random()
-            };
+            return challenger;
         }
     }
 }

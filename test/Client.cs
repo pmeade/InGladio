@@ -62,7 +62,7 @@ public class Client
         clientController.MakeDeck(new int[]{0,1,2,3,4,5,6,7});
         var challenge = clientController.MakeChallenge(0);
         Assert.That(challenge.Open == true);
-        Assert.That(challenge.Deck.Unsealed(), Is.EqualTo(clientController.Decks[0]));
+        Assert.That((challenge.Player.Deck as SealedDeck).Unsealed(), Is.EqualTo(clientController.Decks[0]));
     }
 
     [Test]
@@ -70,7 +70,7 @@ public class Client
     {
         var challenge = clientController.MakeChallenge();
         Assert.That(challenge.Open == true);
-        Assert.That(challenge.Deck.Unsealed().Count, Is.EqualTo(8));
+        Assert.That((challenge.Player.Deck as SealedDeck).Unsealed().Count, Is.EqualTo(8));
     }
 
     [Test]
