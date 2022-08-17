@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace lib
 {
@@ -82,7 +83,7 @@ namespace lib
 
         private readonly int seed;
 
-        public void Resolve()
+        public void Resolve(bool verbose = false)
         {
             if (leftPlay != null && rightPlay != null)
             {
@@ -91,8 +92,8 @@ namespace lib
                 Board.RightCard = rightPlay?.Card;
                 if (Active && Started && leftPlay != null && rightPlay != null)
                 {
-                    processPlays();
-                    burnCards();
+                    processPlays(verbose);
+                    burnCards(verbose);
                     leftPlay = null;
                     rightPlay = null;
                 }
@@ -162,40 +163,64 @@ namespace lib
 
         public PlayerController Winner { get; private set; }
 
-        private void burnCards()
+        private void burnCards(bool verbose = false)
         {
             if (leftPlay.Card.Platonic == burns[rightPlay.Card.Platonic])
             {
+                if (verbose)
+                {
+                    Console.WriteLine("Host card is burned");
+                }
                 leftPlay.Card.OnBurned?.Invoke(host);
                 Board.LeftCard = null;
             }
 
             if (rightPlay.Card.Platonic == burns[leftPlay.Card.Platonic])
             {
+                if (verbose)
+                {
+                    Console.WriteLine("Challenger card is burned");
+                }
                 rightPlay.Card.OnBurned?.Invoke(challenger);
                 Board.RightCard = null;
             }
         }
 
-        private void processPlays()
+        private void processPlays(bool verbose = false)
         {
             if (leftPlay.Wins(rightPlay))
             {
+                if (verbose)
+                {
+                    Console.WriteLine("Host card wins hand");
+                }
                 leftPlay.Card.OnWinHand?.Invoke(host);
             }
 
             if (rightPlay.Wins(leftPlay))
             {
+                if (verbose)
+                {
+                    Console.WriteLine("Challenger card wins hand");
+                }
                 rightPlay.Card.OnWinHand?.Invoke(challenger);
             }
             
             if (leftPlay.BigEnough(rightPlay) && !leftPlay.IsStoppedBy(rightPlay.Choice))
             {
+                if (verbose)
+                {
+                    Console.WriteLine("Host card resolves");
+                }
                 leftPlay.Resolve(host);
             }
 
             if (rightPlay.BigEnough(leftPlay) && !rightPlay.IsStoppedBy(leftPlay.Choice))
             {
+                if (verbose)
+                {
+                    Console.WriteLine("Challenger card resolves");
+                }
                 rightPlay.Resolve(challenger);
             }
         }

@@ -7,7 +7,7 @@ namespace client;
 
 public class p2pclient
 {
-    private TcpClient client;
+    private TcpClient? client;
     private string name;
     private NetworkStream stream;
     private Queue<Message> messageQueue = new Queue<Message>();

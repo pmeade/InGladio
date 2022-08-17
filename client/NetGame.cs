@@ -88,50 +88,6 @@ public class NetGame
                 return "Stairs";
         }
     }
-    
-    // private Message makePlay()
-    // {
-    //
-    //     bool cardPicked = false;
-    //     Card pickedCard;
-    //     while (!cardPicked)
-    //     {
-    //         Console.WriteLine("Choose card: 1-8");
-    //         var key = Console.ReadKey();
-    //         if (key.Key >= ConsoleKey.D1 && key.Key <= ConsoleKey.D8)
-    //         {
-    //             pickedCard = game.Match.LeftDeck.Get(uint.Parse(key.Key.ToString()));
-    //             cardPicked = true;
-    //         }
-    //     }
-    //
-    //     bool choiceMade = false;
-    //     Play play;
-    //     while (!choiceMade)
-    //     {
-    //         Console.WriteLine("[M]ove [S]trike [P]arry");
-    //         var key = Console.ReadKey();
-    //         switch (key.Key)
-    //         {
-    //             case ConsoleKey.M:
-    //                 choiceMade = true;
-    //                 break;
-    //             case ConsoleKey.S:
-    //                 choiceMade = true;
-    //                 break;
-    //             case ConsoleKey.P:
-    //                 choiceMade = true;
-    //                 break;
-    //         }
-    //     }
-    // }
-
-    // private Play makeMove(Card card)
-    // {
-    //     Console.WriteLine("[S]teps S[q]uare [P]erch [C]urtain");
-    //     Console.ReadKey();
-    // }
-
     private void dumpBasket()
     {
         Console.WriteLine("Basket: {0}", match.Basket.Face.ToPrettyString());
@@ -212,7 +168,7 @@ public class NetGame
         var them = _getRemotePlayer();
         them.PlayCard(opponentsTurn.Message.Card, opponentsTurn.Message.Data);
         
-        match.Resolve();
+        match.Resolve(true);
         if (match.Complete)
         {
             Closed = true;

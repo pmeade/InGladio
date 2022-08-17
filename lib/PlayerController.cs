@@ -114,8 +114,8 @@ namespace lib
         {
             if (match != null && match.Active && !match.Started)
             {
-                Opponent = isHost ? match.Challenge.Challenger : match.Challenge.Host;
-                Opponent.Opponent = this;
+                // Opponent = isHost ? match.Challenge.Challenger : match.Challenge.Host;
+                // Opponent.Opponent = this;
                 match.Start();
             }
 
@@ -189,7 +189,7 @@ namespace lib
                 case Choice.Move:
                     Place moveLocation;
                     Place.TryParse(data[0], true, out moveLocation);
-                    Move(moveLocation);
+                    ChooseMove(card, moveLocation, this);
                     break;
                 
                 case Choice.Parry:
