@@ -11,12 +11,13 @@ public class p2pclient
     private string name;
     private NetworkStream stream;
     private Queue<Message> messageQueue = new Queue<Message>();
+    private PlayerDetails localPlayerdetails;
+    private PlayerDetails opponentDetails;
 
     public void Connect(string name)
     {
         this.name = name;
-        var thread = new Thread(doClient);
-        thread.Start();
+        doClient();
     }
 
     private void doClient()
@@ -25,6 +26,8 @@ public class p2pclient
         Console.WriteLine("Connected to server");
         stream = client.GetStream();
         startGame(NetGame.EPlayerType.Challenger);
+        stream.Close();
+        client.Close();
     }
 
     private const string Address = "127.0.0.1";
@@ -34,8 +37,7 @@ public class p2pclient
     public void Host(string name)
     {
         this.name = name;
-        var thread = new Thread(doHost);
-        thread.Start();
+        doHost();
     }
 
     private void doHost()
@@ -50,22 +52,25 @@ public class p2pclient
         stream = client.GetStream();
 
         startGame(NetGame.EPlayerType.Host);
+        stream.Close();
+        client.Close();
+        server.Stop();
     }
 
     private void startGame(NetGame.EPlayerType playerType)
     {
-        var details = new PlayerDetails()
+        localPlayerdetails = new PlayerDetails()
         {
             Name = name,
             Seed = ((int)(DateTime.Now.Ticks & 0x0000ffff) ^ name.GetHashCode())
         };
 
-        var challengerDetails = introduction(details);
+        opponentDetails = introduction(localPlayerdetails);
 
         NetGame netGame = playerType == NetGame.EPlayerType.Host
-            ? NetGame.Host(details, challengerDetails)
-            : NetGame.Challenge(details, challengerDetails);
-
+            ? NetGame.Host(localPlayerdetails, opponentDetails)
+            : NetGame.Challenge(localPlayerdetails, opponentDetails);
+        
         netGame.Start();
         
         playGame(netGame);
@@ -141,6 +146,10 @@ public class p2pclient
 
             netGame.UpdateGame(turn, opponentsTurn);
         }
+        
+        Console.WriteLine("Game Over");
+        Console.WriteLine("Winner {0}", netGame.Winner());
+        Console.WriteLine("Reward is {0}", netGame.Reward().ToPrettyString());
     }
 
     private void sendMessage(Message message)

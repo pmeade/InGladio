@@ -233,4 +233,26 @@ public class NetGame
     {
         match.Start();
     }
+
+    public string Winner()
+    {
+        if (Closed)
+        {
+            if (match.Winner == match.GetHost())
+            {
+                return HostName;
+            }
+
+            if (match.Winner == match.GetChallenger())
+            {
+                return ChallengerName;
+            }
+
+            return "No one wins in a draw";
+        }
+
+        return "To be determined";
+    }
+
+    public Card Reward() => match.Basket.Reward;
 }
