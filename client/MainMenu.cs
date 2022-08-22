@@ -4,7 +4,7 @@ public class MainMenu
 {
     private CardMenu cardMenu = new CardMenu();
     private PlayMenu playMenu = new PlayMenu();
-    public void Show(string name)
+    public void Show(string? name)
     {
         ConsoleKey choice = ConsoleKey.Clear;
         while (choice != ConsoleKey.Q)

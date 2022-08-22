@@ -19,7 +19,12 @@ namespace lib
         public Basket(Generator generator)
         {
             this.generator = generator;
-            this.Face = this.generator.Roll();
+            RollFace();
+        }
+
+        public void RollFace()
+        {
+            Face = generator.Roll();
         }
 
         public void TakeDamage(int amount, PlayerController dealer)
@@ -43,6 +48,8 @@ namespace lib
         {
             Place = place;
         }
+
+        public Place Location => Place;
 
         public void Claim(PlayerController playerController)
         {

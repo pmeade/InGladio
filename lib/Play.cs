@@ -9,26 +9,52 @@ namespace lib
         public Choice Choice { get; set; }
         
         public Target Target { get; }
+        
+        public Power EffectivePower { get; private set; }
 
-        public Play(Card card, Target target)
+        public Play(Card card, Target target, Place locationPlayedFrom)
         {
             this.Card = card;
             this.Target = target;
+
+            calculateEffectivePower(card, target, locationPlayedFrom);
         }
 
-        public static Play Move(Card card, Place place, Target target)
+        private void calculateEffectivePower(Card card, Target target, Place locationPlayedFrom)
+        {
+            EffectivePower = card.Power;
+            switch (locationPlayedFrom)
+            {
+                case Place.Steps:
+                case Place.Curtain:
+                    if (card.Choice == Choice.Strike && EffectivePower != Power.Three)
+                        --EffectivePower;
+                    break;
+                case Place.Perch:
+                    if (card.Choice == Choice.Strike && EffectivePower != Power.Eight)
+                        ++EffectivePower;
+                    break;
+            }
+
+            if (target.Location == Place.Curtain && card.Choice == Choice.Strike && EffectivePower != Power.Three)
+            {
+                --EffectivePower;
+            }
+        }
+
+        public static Play Move(Card card, Place place, Target target, Place locationPlayedFrom)
         {
             if (card.Choice != Choice.Move)
             {
                 return null;
             }
-            return new MovePlay(card, place, target);
+            return new MovePlay(card, place, target, locationPlayedFrom);
         }
 
         private class MovePlay : Play
         {
             private Place place { get; }
-            public MovePlay(Card card, Place place, Target target) : base(card, target)
+            public MovePlay(Card card, Place place, Target target, Place locationPlayedFrom) : base(card, target, locationPlayedFrom)
             {
                 this.place = place;
             }
@@ -48,18 +74,18 @@ namespace lib
         {
         }
 
-        internal static Play Parry(Card card, Target target)
+        internal static Play Parry(Card card, Target target, Place locationPlayedFrom)
         {
             if (card.Choice != Choice.Parry)
             {
                 return null;
             }
-            return new ParryPlay(card, target);
+            return new ParryPlay(card, target, locationPlayedFrom);
         }
 
         private class ParryPlay : Play
         {
-            public ParryPlay(Card card, Target target) : base(card, target)
+            public ParryPlay(Card card, Target target, Place locationPlayedFrom) : base(card, target, locationPlayedFrom)
             {
                 this.Choice = Choice.Parry;
             }
@@ -77,18 +103,18 @@ namespace lib
             }
         }
 
-        public static Play Strike(Card card, Target target)
+        public static Play Strike(Card card, Target target, Place locationPlayedFrom)
         {
             if (card.Choice != Choice.Strike)
             {
                 return null;
             }
-            return new StrikePlay(card, target);
+            return new StrikePlay(card, target, locationPlayedFrom);
         }
 
         private class StrikePlay : Play
         {
-            public StrikePlay(Card card, Target target) : base(card, target)
+            public StrikePlay(Card card, Target target, Place locationPlayedFrom) : base(card, target, locationPlayedFrom)
             {
                 this.Choice = Choice.Strike;
             }
@@ -112,7 +138,7 @@ namespace lib
             return true;
         }
 
-        public bool Wins(Play otherPlay)
+        public bool BeatsInMoveStrikeParry(Play otherPlay)
         {
             return (Choice == Choice.Move && otherPlay.Choice == Choice.Parry)
                    || (Choice == Choice.Parry && otherPlay.Choice == Choice.Strike)
@@ -121,7 +147,7 @@ namespace lib
 
         public bool BigEnough(Play otherPlay)
         {
-            return Card.Power >= otherPlay.Card.Power;
+            return EffectivePower >= otherPlay.EffectivePower;
         }
     }
 }

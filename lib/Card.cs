@@ -42,6 +42,13 @@ namespace lib
         public string ToPrettyString()
         {
             StringBuilder sb = new StringBuilder();
+
+            if (Burned)
+            {
+                sb.Append("***BURNED***");
+            }
+            
+            
             sb.Append(string.Format("{0} --- {1} ---", Choice.ToString(), Power.ToString()));
             if (Adjective != null && Adjective.Name.Length != 0)
             {
@@ -68,6 +75,8 @@ namespace lib
 
             return sb.ToString();
         }
+
+        public bool Burned { get; set; }
 
         public static Card FromString(string details)
         {

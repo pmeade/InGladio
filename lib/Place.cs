@@ -3,7 +3,7 @@
     public enum Place
     {
         Steps,
-        Pitch,
+        Perch,
         Square,
         Curtain
     }

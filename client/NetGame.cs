@@ -1,4 +1,5 @@
-﻿using lib;
+﻿using System.Text;
+using lib;
 
 
 namespace client;
@@ -11,195 +12,331 @@ public class NetGame
         Done
     }
 
-    private EGameState gameState;
     private int round = 0;
 
-    public Turn YourTurn()
+    private Turn takeTurn()
     {
-        dumpGameDetails();
+        displayGame();
 
-        var key = ConsoleKey.Clear;
-        while (key < ConsoleKey.D1 || key > ConsoleKey.D8)
-        {
-            Console.WriteLine("Getting Key");
-            var input = Console.ReadKey();
-            key = input.Key;
-            Console.WriteLine("Got Key");
-        }
-
-        var cardIndex = (uint)(key - ConsoleKey.D1);
-        var card = _getLocalPlayer().Deck.Get(cardIndex);
-        string[]? data;
-        switch (card.Choice)
-        {
-            case Choice.Move:
-                var moveLocation = inputLocation();
-                data = new string[] { moveLocation };
-                return new Turn()
-                {
-                    Message = Message.Play(cardIndex, data),
-                    Local = true
-                };
-
-            case Choice.Strike:
-            case Choice.Parry:
-            default:
-                data = new string[] { };
-                return new Turn()
-                {
-                    Message = Message.Play(cardIndex, data),
-                    Local = true
-                };
-        }
-
+        var cardIndex = makePlay();
+        var card = getLocalCard(cardIndex);
+        return getAdditionalInput(card, cardIndex);
     }
 
-    private string inputLocation()
+    private Turn getAdditionalInput(Card? card, uint cardIndex)
     {
+        switch (card?.Choice)
+        {
+            case Choice.Move:
+                return completeMove(cardIndex);
+
+            case Choice.Strike:
+                return completeStrike(cardIndex);
+
+            case Choice.Parry:
+            default:
+                return completeParry(cardIndex);
+        }
+    }
+
+    private Card? getLocalCard(uint cardIndex)
+    {
+        return _getLocalPlayer()?.Deck.Get(cardIndex);
+    }
+
+    private uint makePlay()
+    {
+        var key = ConsoleKey.Clear;
+        key = chooseCardToPlay(key);
+
+        var cardIndex = (uint)(key - ConsoleKey.D1);
+        return cardIndex;
+    }
+
+    private static Turn completeParry(uint cardIndex)
+    {
+        var data = new string[] { };
+        return new Turn()
+        {
+            Message = Message.Play(cardIndex, data),
+            Local = true
+        };
+    }
+
+    private Turn completeStrike(uint cardIndex)
+    {
+        var target = inputTarget();
+        string[] data = new[] { target ?? string.Empty};
+        return new Turn()
+        {
+            Message = Message.Play(cardIndex, data),
+            Local = true
+        };
+    }
+
+    private Turn completeMove(uint cardIndex)
+    {
+        var moveLocation = inputLocation();
+        var data = new[] { moveLocation ?? string.Empty };
+        return new Turn()
+        {
+            Message = Message.Play(cardIndex, data),
+            Local = true
+        };
+    }
+
+    private ConsoleKey chooseCardToPlay(ConsoleKey key)
+    {
+        while (key < ConsoleKey.D1 || key > ConsoleKey.D8)
+        {
+            var input = Console.ReadKey();
+            key = input.Key;
+            Console.WriteLine();
+            if (_burned.ContainsKey(key))
+            {
+                key = ConsoleKey.Clear;
+            }
+        }
+
+        return key;
+    }
+
+    private string? inputTarget()
+    {
+        if (_getLocalPlayer()?.Place != Place.Square)
+        {
+            return "opponent";
+        }
+        
         var key = TextInput.Get(new Dictionary<ConsoleKey, string>()
         {
             {
-                ConsoleKey.S,
-                "Square"
+                ConsoleKey.O,
+                "Opponent"
             },
             {
-                ConsoleKey.P,
-                "Perch"
-            },
-            {
-                ConsoleKey.C,
-                "Curtain"
-            },
-            {
-                ConsoleKey.T,
-                "Stairs"
+                ConsoleKey.B,
+                "Basket"
             }
         });
 
         switch (key)
         {
-            case ConsoleKey.S:
+            case ConsoleKey.B:
+                return "basket";
+            default:
+            case ConsoleKey.O:
+                return "opponent";
+        }
+    }
+
+    private string? inputLocation()
+    {
+        var choices = new Dictionary<ConsoleKey, string>();
+        switch (_getLocalPlayer()?.Place)
+        {
+            case Place.Curtain:
+                return "Square";
+            case Place.Perch:
+                return "Steps";
+            case Place.Steps:
+                choices.Add(ConsoleKey.Q, "Square");
+                choices.Add(ConsoleKey.P, "Perch");
+                break;
+            case Place.Square:
+                choices.Add(ConsoleKey.C, "Curtain");
+                choices.Add(ConsoleKey.S, "Steps");
+                break;
+        }
+        
+        var key = TextInput.Get(choices);
+
+        switch (key)
+        {
+            case ConsoleKey.Q:
                 return "Square";
             case ConsoleKey.P:
                 return "Perch";
             case ConsoleKey.C:
                 return "Curtain";
             default:
-                return "Stairs";
+                return "Steps";
         }
     }
-    private void dumpBasket()
+    private void displayBasket()
     {
-        Console.WriteLine("Basket: {0}", match.Basket.Face.ToPrettyString());
+        Console.WriteLine();
+        Console.WriteLine($"Basket: Health {match?.Basket.Health} {match?.Basket.Face.ToPrettyString()}");
     }
 
-    private void dumpCards(Deck deck)
-    {
-        for (uint i = 0; i < deck.Count; ++i)
-        {
-            Console.WriteLine(String.Format("[{0}] {1}", i+1, deck.Get(i).ToPrettyString()));
-        }
-    }
 
-    private void dumpScores()
+    private void displayGame()
     {
-        Console.WriteLine("Host {0}     Challenger {1}     Basket {2}", 
-            match.Challenge.Host.Health, match.Challenge.Challenger.Health, match.Basket.Health);
-    }
-
-    private void dumpGameDetails()
-    {
-        Console.WriteLine("In Gladio");
+        Console.WriteLine();
+        Console.WriteLine("*** ***** ***");
         Console.WriteLine("Round {0}", ++round);
-        dumpScores();
-        dumpCards(match.LeftDeck);
-        dumpBasket();
-        dumpCards(match.RightDeck);
+        displayOpponent();
+        displayBasket();
+        displayLocalPlayer();
+    }
+
+    private void displayLocalPlayer()
+    {
+        var you = _getLocalPlayer();
+        Console.WriteLine("");
+        Console.WriteLine($"You: Health {you?.Health}   Location {you?.Place.ToString()}");
+        Console.WriteLine("Choose a card to play");
+        var deck = _getLocalPlayer()?.Deck;
+        for (uint i = 0; i < deck?.Count; ++i)
+        {
+            Console.WriteLine($"[{i + 1}] {deck.Get(i).ToPrettyString()}");
+        }
+    }
+
+    private void displayOpponent()
+    {
+        var opponent = _getRemotePlayer();
+        Console.WriteLine("");
+        Console.WriteLine($"Opponent: Health {opponent?.Health}   Location {opponent?.Place.ToString()}");
+        var deck = _getRemotePlayer()?.Deck;
+        for (uint i = 0; i < deck?.Count; ++i)
+        {
+            Console.WriteLine($"{deck.Get(i).ToPrettyString()}");
+        }
     }
 
     public bool Closed { get; private set; } = false;
 
 
-    private Match match;
+    private Match? match;
     public EPlayerType playerType;
+    private Dictionary<ConsoleKey, bool> _burned = new Dictionary<ConsoleKey, bool>();
 
     public enum EPlayerType
     {
         Host,
         Challenger
     }
-    public static NetGame Host(PlayerDetails localPlayer, PlayerDetails remotePlayer)
+    public static NetGame? Host(PlayerDetails? localPlayer, PlayerDetails? remotePlayer)
     {
         return Play(localPlayer, remotePlayer, EPlayerType.Host);
     }
 
-    public static NetGame Challenge(PlayerDetails localPlayer, PlayerDetails remotePlayer)
+    public static NetGame? Challenge(PlayerDetails? localPlayer, PlayerDetails? remotePlayer)
     {
         return Play(remotePlayer, localPlayer, EPlayerType.Challenger);
     }
-    private static NetGame Play(PlayerDetails hostDetails, PlayerDetails challengerDetails, EPlayerType playerType)
+    private static NetGame? Play(PlayerDetails? hostDetails, PlayerDetails? challengerDetails, EPlayerType playerType)
     {
         var host = new PlayerController();
-        host.Seed = hostDetails.Seed;
-        
-        var challenger = new PlayerController();
-        challenger.Seed = challengerDetails.Seed;
+        if (hostDetails != null)
+        {
+            host.Seed = hostDetails.Seed;
 
-        var challenge = host.CreateChallenge();
-        var match = challenger.AcceptChallenge(challenge);
-        
-        return new NetGame() { HostName = hostDetails.Name, ChallengerName = challengerDetails.Name, match = match, playerType = playerType};
+            var challenger = new PlayerController();
+            if (challengerDetails != null)
+            {
+                challenger.Seed = challengerDetails.Seed;
+
+                var challenge = host.CreateChallenge();
+                var match = challenger.AcceptChallenge(challenge);
+
+                return new NetGame()
+                {
+                    HostName = hostDetails.Name, ChallengerName = challengerDetails.Name, match = match,
+                    playerType = playerType
+                };
+            }
+        }
+
+        return null;
     }
 
-    public string HostName { get; set; }
+    public string? HostName { get; set; }
     
-    public string ChallengerName { get; set; }
+    public string? ChallengerName { get; set; }
 
     private NetGame()
     {
-        gameState = EGameState.Init;
     }
 
     public void UpdateGame(Turn turn, Turn opponentsTurn)
     {
-        var me = _getLocalPlayer();
-        me.PlayCard(turn.Message.Card, turn.Message.Data);
+        Console.WriteLine();
+        Console.WriteLine("You played {0}", displayTurn(turn, _getLocalPlayer()));
+        Console.WriteLine("Opponent played {0}", displayTurn(opponentsTurn, _getRemotePlayer()));
 
-        var them = _getRemotePlayer();
-        them.PlayCard(opponentsTurn.Message.Card, opponentsTurn.Message.Data);
-        
-        match.Resolve(true);
-        if (match.Complete)
+        var me = _getLocalPlayer();
+        if (turn.Message != null)
+        {
+            me?.PlayCard(turn.Message.Card, turn.Message.Data);
+
+            var them = _getRemotePlayer();
+            if (opponentsTurn.Message != null)
+            {
+                them?.PlayCard(opponentsTurn.Message.Card, opponentsTurn.Message.Data);
+
+                match?.Resolve(true);
+                if (_getLocalPlayer()!.Deck.Get(turn.Message.Card).Burned)
+                {
+                    _burned[ConsoleKey.D1 + (int)turn.Message.Card] = true;
+                }
+            }
+        }
+
+        if (match is { Complete: true })
         {
             Closed = true;
         }
     }
 
-    private PlayerController _getRemotePlayer()
+    private string displayTurn(Turn turn, PlayerController? player)
     {
-        return (playerType == EPlayerType.Host) ? match.GetChallenger() : match.GetHost();
+        var sb = new StringBuilder();
+        if (turn.Message != null)
+        {
+            var card = player?.Deck.Get(turn.Message.Card);
+            sb.Append(card?.ToPrettyString());
+            if (card != null)
+                switch (card.Choice)
+                {
+                    case Choice.Move:
+                        sb.Append($" move to {turn.Message.Data?[0]}");
+                        break;
+                    case Choice.Strike:
+                        sb.Append($" target is {turn.Message.Data?[0]}");
+                        break;
+                }
+        }
+
+        return sb.ToString();
     }
 
-    private PlayerController _getLocalPlayer()
+    private PlayerController? _getRemotePlayer()
     {
-        return (playerType == EPlayerType.Host) ? match.GetHost() : match.GetChallenger();
+        return (playerType == EPlayerType.Host) ? match?.GetChallenger() : match?.GetHost();
+    }
+
+    private PlayerController? _getLocalPlayer()
+    {
+        return (playerType == EPlayerType.Host) ? match?.GetHost() : match?.GetChallenger();
     }
 
     public void Start()
     {
-        match.Start();
+        match?.Start();
     }
 
-    public string Winner()
+    public string? Winner()
     {
         if (Closed)
         {
-            if (match.Winner == match.GetHost())
+            if (match?.Winner == match?.GetHost())
             {
                 return HostName;
             }
 
-            if (match.Winner == match.GetChallenger())
+            if (match?.Winner == match?.GetChallenger())
             {
                 return ChallengerName;
             }
@@ -210,5 +347,34 @@ public class NetGame
         return "To be determined";
     }
 
-    public Card Reward() => match.Basket.Reward;
+    public Card? Reward() => match?.Basket.Reward;
+
+    public void Tick(InGladioNetwork network)
+    {
+        Console.WriteLine($"{HostName} challenging {ChallengerName}");
+        while (!Closed)
+        {
+
+            var turn = takeTurn();
+            if (turn.Message != null)
+            {
+                network.SendMessage(turn.Message);
+
+                Console.WriteLine("Waiting for opponent to play");
+                network.WaitForMessages();
+
+                var opponentsTurn = new Turn()
+                {
+                    Message = network.MessageQueue.Dequeue() as PlayMessage,
+                    Local = false
+                };
+
+                UpdateGame(turn, opponentsTurn);
+            }
+        }
+
+        Console.WriteLine("Game Over");
+        Console.WriteLine("Winner {0}", Winner());
+        Console.WriteLine("Reward is {0}", Reward()?.ToPrettyString());
+    }
 }

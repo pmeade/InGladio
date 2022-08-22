@@ -136,23 +136,25 @@ namespace lib
             Place = place;
         }
 
-        public void ChooseMove(Card card, Place place, Target target)
+        public Place Location => Place;
+
+        public void ChooseMove(Card card, Place place, Target target, Place locationPlayedFrom)
         {
             if (target != Opponent)
             {
-                Play(lib.Play.Move(card, place, target));
+                Play(lib.Play.Move(card, place, target, locationPlayedFrom));
             }
         }
-        public void ChooseParry(Card card)
+        public void ChooseParry(Card card, Place locationPlayedFrom)
         {
-            Play(lib.Play.Parry(card, Opponent));
+            Play(lib.Play.Parry(card, Opponent, locationPlayedFrom));
         }
 
-        public void ChooseStrike(Card card, Target target)
+        public void ChooseStrike(Card card, Target target, Place locationPlayedFrom)
         {
             if (target != this)
             {
-                Play(lib.Play.Strike(card, target));
+                Play(lib.Play.Strike(card, target, locationPlayedFrom));
             }
         }
 
@@ -189,15 +191,16 @@ namespace lib
                 case Choice.Move:
                     Place moveLocation;
                     Place.TryParse(data[0], true, out moveLocation);
-                    ChooseMove(card, moveLocation, this);
+                    ChooseMove(card, moveLocation, this, Place);
                     break;
                 
                 case Choice.Parry:
-                    ChooseParry(card);
+                    ChooseParry(card, Place);
                     break;
                 
                 case Choice.Strike:
-                    ChooseStrike(card, Opponent);
+                    var target = (data[0].Equals("basket")) ? match.Basket : Opponent as Target;
+                    ChooseStrike(card, target, Place);
                     break;
             }
         }

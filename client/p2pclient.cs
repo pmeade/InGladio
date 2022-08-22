@@ -5,18 +5,18 @@ using System.Text.RegularExpressions;
 
 namespace client;
 
-public class p2pclient
+public class p2pclient : InGladioNetwork
 {
     private TcpClient? client;
-    private string name;
-    private NetworkStream stream;
-    private Queue<Message> messageQueue = new Queue<Message>();
-    private PlayerDetails localPlayerdetails;
-    private PlayerDetails opponentDetails;
+    private string? name;
+    private NetworkStream? stream;
+    private readonly Queue<Message> messageQueue = new Queue<Message>();
+    private PlayerDetails? localPlayerdetails;
+    private PlayerDetails? opponentDetails;
 
-    public void Connect(string name)
+    public void Connect(string? name)
     {
-        this.name = name;
+        this.name = name ?? throw new ArgumentNullException(nameof(name));
         doClient();
     }
 
@@ -34,7 +34,7 @@ public class p2pclient
 
     private const int Port = 5309;
 
-    public void Host(string name)
+    public void Host(string? name)
     {
         this.name = name;
         doHost();
@@ -45,10 +45,12 @@ public class p2pclient
         var server = new TcpListener(IPAddress.Parse(Address), Port);
         server.Start();
         
+        Console.WriteLine("");
         Console.WriteLine("Hosting on 127.0.0.1:5309");
         
         client = server.AcceptTcpClient();
         Console.WriteLine("Accepted Connection");
+        Console.WriteLine("");
         stream = client.GetStream();
 
         startGame(NetGame.EPlayerType.Host);
@@ -59,27 +61,32 @@ public class p2pclient
 
     private void startGame(NetGame.EPlayerType playerType)
     {
-        localPlayerdetails = new PlayerDetails()
-        {
-            Name = name,
-            Seed = ((int)(DateTime.Now.Ticks & 0x0000ffff) ^ name.GetHashCode())
-        };
+        Console.WriteLine("");
+        if (name != null)
+            localPlayerdetails = new PlayerDetails()
+            {
+                Name = name,
+                Seed = ((int)(DateTime.Now.Ticks & 0x0000ffff) ^ name.GetHashCode())
+            };
 
         opponentDetails = introduction(localPlayerdetails);
 
-        NetGame netGame = playerType == NetGame.EPlayerType.Host
+        NetGame? netGame = playerType == NetGame.EPlayerType.Host
             ? NetGame.Host(localPlayerdetails, opponentDetails)
             : NetGame.Challenge(localPlayerdetails, opponentDetails);
         
-        netGame.Start();
+        netGame?.Start();
         
-        playGame(netGame);
+        Console.WriteLine("");
+        Console.WriteLine("Playing In Gladio");
+        Console.WriteLine("");
+        netGame?.Tick(this);
     }
 
-    private PlayerDetails introduction(PlayerDetails details)
+    private PlayerDetails? introduction(PlayerDetails? details)
     {
-        var start = Message.Start(details.Name, details.Seed.ToString());
-        stream.Write(start.ToNet());
+        var start = Message.Start(details?.Name, details?.Seed.ToString());
+        stream?.Write(start.ToNet());
         var message = getMessage() as StartMessage;
         if (message == null)
         {
@@ -101,59 +108,35 @@ public class p2pclient
     private void waitForMessages()
     {
         byte[] bytes = new byte[256];
-        var receivedCount = stream.Read(bytes, 0, bytes.Length);
-        while (receivedCount != 0)
+        if (stream != null)
         {
-            Console.WriteLine("Received {0} bytes", receivedCount);
-            var data = System.Text.Encoding.ASCII.GetString(bytes, 0, receivedCount);
-            var messages = Message.Parse(data);
-            Console.WriteLine("Found {0} message", messages.Count);
-            foreach (var message in messages)
+            var receivedCount = stream.Read(bytes, 0, bytes.Length);
+            while (receivedCount != 0)
             {
-                messageQueue.Enqueue(message);
-            }
+                //Console.WriteLine("Received {0} bytes", receivedCount);
+                var data = System.Text.Encoding.ASCII.GetString(bytes, 0, receivedCount);
+                var messages = Message.Parse(data);
+                //Console.WriteLine("Found {0} message", messages.Count);
+                foreach (var message in messages)
+                {
+                    messageQueue.Enqueue(message);
+                }
 
-            if (client.Available > 0)
-            {
-                receivedCount = stream.Read(bytes, 0, bytes.Length);
-            }
-            else
-            {
-                receivedCount = 0;
+                if (client != null && client.Available > 0)
+                {
+                    receivedCount = stream.Read(bytes, 0, bytes.Length);
+                }
+                else
+                {
+                    receivedCount = 0;
+                }
             }
         }
     }
 
-    private void playGame(NetGame netGame)
-    {
-        Console.WriteLine("Playing In Gladio");
-        Console.WriteLine($"{netGame.HostName} challenging {netGame.ChallengerName}");
-        while (!netGame.Closed)
-        {
-            Console.WriteLine($"Game is open");
 
-            var turn = netGame.YourTurn();
-            sendMessage(turn.Message);
-
-            Console.WriteLine("Waiting for opponent to play");
-            waitForMessages();
-
-            var opponentsTurn = new Turn()
-            {
-                Message = messageQueue.Dequeue() as PlayMessage,
-                Local = false
-            };
-
-            netGame.UpdateGame(turn, opponentsTurn);
-        }
-        
-        Console.WriteLine("Game Over");
-        Console.WriteLine("Winner {0}", netGame.Winner());
-        Console.WriteLine("Reward is {0}", netGame.Reward().ToPrettyString());
-    }
-
-    private void sendMessage(Message message)
-    {
-        stream.Write(message.ToNet());
-    }
+    private void sendMessage(Message? message) => stream?.Write(message?.ToNet());
+    public Queue<Message> MessageQueue => messageQueue;
+    public void WaitForMessages() => waitForMessages();
+    public void SendMessage(PlayMessage turn) => sendMessage(turn);
 }

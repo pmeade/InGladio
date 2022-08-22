@@ -100,6 +100,7 @@ namespace lib
 
                 checkForVictory();
                 Basket.damageDealers.Clear();
+                Basket.RollFace();
             }
         }
 
@@ -169,8 +170,10 @@ namespace lib
             {
                 if (verbose)
                 {
-                    Console.WriteLine("Host card is burned");
+                    Console.WriteLine($"{rightPlay.Card.Platonic.ToString()} burns {leftPlay.Card.Platonic.ToString()}");
                 }
+
+                leftPlay.Card.Burned = true;
                 leftPlay.Card.OnBurned?.Invoke(host);
                 Board.LeftCard = null;
             }
@@ -179,8 +182,10 @@ namespace lib
             {
                 if (verbose)
                 {
-                    Console.WriteLine("Challenger card is burned");
+                    Console.WriteLine($"{leftPlay.Card.Platonic.ToString()} burns {rightPlay.Card.Platonic.ToString()}");
                 }
+
+                rightPlay.Card.Burned = true;
                 rightPlay.Card.OnBurned?.Invoke(challenger);
                 Board.RightCard = null;
             }
@@ -188,20 +193,25 @@ namespace lib
 
         private void processPlays(bool verbose = false)
         {
-            if (leftPlay.Wins(rightPlay))
+            if (verbose)
+            {
+                Console.WriteLine();
+            }
+            
+            if (leftPlay.BeatsInMoveStrikeParry(rightPlay))
             {
                 if (verbose)
                 {
-                    Console.WriteLine("Host card wins hand");
+                    Console.WriteLine($"{leftPlay.Card.Choice.ToString()} card wins hand");
                 }
                 leftPlay.Card.OnWinHand?.Invoke(host);
             }
 
-            if (rightPlay.Wins(leftPlay))
+            if (rightPlay.BeatsInMoveStrikeParry(leftPlay))
             {
                 if (verbose)
                 {
-                    Console.WriteLine("Challenger card wins hand");
+                    Console.WriteLine($"{rightPlay.Card.Choice.ToString()} card wins hand");
                 }
                 rightPlay.Card.OnWinHand?.Invoke(challenger);
             }
@@ -210,7 +220,10 @@ namespace lib
             {
                 if (verbose)
                 {
-                    Console.WriteLine("Host card resolves");
+                    Console.WriteLine(
+                        $"{leftPlay.Card.Choice.ToString()} {leftPlay.Card.Power.ToString()} " +
+                        $"resolves against " +
+                        $"{rightPlay.Card.Choice.ToString()} {rightPlay.Card.Power.ToString()}");
                 }
                 leftPlay.Resolve(host);
             }
@@ -219,7 +232,8 @@ namespace lib
             {
                 if (verbose)
                 {
-                    Console.WriteLine("Challenger card resolves");
+                    Console.WriteLine($"{rightPlay.Card.Choice.ToString()} {rightPlay.Card.Power.ToString()}" +
+                                      $" resolves against {leftPlay.Card.Choice.ToString()} {leftPlay.Card.Power.ToString()}");
                 }
                 rightPlay.Resolve(challenger);
             }

@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Diagnostics;
 using client;
 
 splash();
@@ -22,11 +23,11 @@ void splash()
     Console.Write(splashScreen);
 }
 
-string login()
+string? login()
 {
     Console.Write("Name: ");
-    var name = "";
-    while (name.Length == 0)
+    string? name = null;
+    while (string.IsNullOrEmpty(name))
     {
         name = Console.ReadLine();
     }

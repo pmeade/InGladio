@@ -2,7 +2,7 @@
 
 public class PlayMenu
 {
-    public void Show(string name)
+    public void Show(string? name)
     {
         p2pclient client = new p2pclient();
 

@@ -6,7 +6,7 @@ namespace client;
 
 public class CardLibrary
 {
-    public List<Card> Cards;
+    public List<Card>? Cards;
 
     public static CardLibrary Load(string cardFile)
     {
@@ -25,11 +25,12 @@ public class CardLibrary
     public void Save(string cardFile)
     {
         var lines = new List<string>();
-        foreach (var card in Cards)
-        {
-            lines.Add(card.ToString());
-        }
-        
+        if (Cards != null)
+            foreach (var card in Cards)
+            {
+                lines.Add(card.ToString());
+            }
+
         File.WriteAllLines(cardFile, lines);
     }
 
@@ -43,7 +44,7 @@ public class CardLibrary
         var generator = Generator.FromSeed((int)(DateTime.Now.Ticks & 0x0000ffff));
         for (int i = 0; i < numCardsToGenerate; ++i)
         {
-            Cards.Add(generator.Roll());
+            Cards?.Add(generator.Roll());
         }
     }
 }

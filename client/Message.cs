@@ -28,11 +28,10 @@ public abstract class Message
         return messages;
     }
 
-    private static Message decode(string messageData)
+    private static Message? decode(string messageData)
     {
-        var parts = messageData.Split(DELIM);
-        EMessageType messageType;
-        if (EMessageType.TryParse(parts[0], true, out messageType))
+        string[] parts = messageData.Split(DELIM);
+        if (EMessageType.TryParse(parts[0], true, out EMessageType messageType))
         {
             switch (messageType)
             {
@@ -50,7 +49,7 @@ public abstract class Message
 
     private const char EOM = '|';
 
-    public static Message Start(string name, string seed)
+    public static Message Start(string? name, string? seed)
     {
         return new StartMessage(name, seed);
     }
@@ -64,9 +63,9 @@ public abstract class Message
         return System.Text.Encoding.ASCII.GetBytes(sb.ToString());
     }
 
-    protected abstract string detailsToString();
+    protected abstract string? detailsToString();
 
-    public static PlayMessage Play(uint card, string[] data)
+    public static PlayMessage? Play(uint card, string[]? data)
     {
         return PlayMessage.Create(card, data);
     }
@@ -75,18 +74,19 @@ public abstract class Message
 public class PlayMessage : Message
 {
     public uint Card { get; private set; }
-    public string[] Data { get; private set; }
+    public string[]? Data { get; private set; }
 
     private PlayMessage()
     {
     }
 
-    protected override string detailsToString()
+    protected override string? detailsToString()
     {
-        return String.Format("{0},{1}", Card.ToString(), string.Join(',', Data));
+        if (Data != null) return $"{Card.ToString()},{string.Join(',', Data)}";
+        return null;
     }
 
-    public static PlayMessage Create(uint card, string[] data)
+    public static PlayMessage? Create(uint card, string[]? data)
     {
         return new PlayMessage()
         {
@@ -95,5 +95,5 @@ public class PlayMessage : Message
         };
     }
 
-    public static Message FromNet(string[] parts) => Create(UInt32.Parse(parts[1]), new[] { parts[2]} );
+    public static Message? FromNet(string[]? parts) => Create(UInt32.Parse(parts?[1] ?? string.Empty), new[] { parts?[2] ?? string.Empty} );
 }

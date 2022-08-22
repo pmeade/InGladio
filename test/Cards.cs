@@ -53,14 +53,14 @@ public class Cards
         Assert.IsTrue(match.Active);
         Assert.IsTrue(leftPlayer.Health == 3);
 
-        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer);
+        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer, Place.Square);
+        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer, Place.Square);
         match.Resolve();
         Assert.IsTrue(leftPlayer.Health == 2);
         
         // heal
-        leftPlayer.ChooseMove(healSelfWhenWinHandCard, Place.Square, leftPlayer);
-        rightPlayer.ChooseParry(Card.BasicParry());
+        leftPlayer.ChooseMove(healSelfWhenWinHandCard, Place.Square, leftPlayer, Place.Square);
+        rightPlayer.ChooseParry(Card.BasicParry(), Place.Square);
         match.Resolve();
         Assert.IsTrue(leftPlayer.Health == 3);
     }
@@ -76,15 +76,15 @@ public class Cards
         Assert.IsTrue(match.Active);
         Assert.IsTrue(leftPlayer.Health == 3);
 
-        leftPlayer.ChooseMove(new Card(){Choice = Choice.Move}, Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(new Card(){Choice = Choice.Strike}, leftPlayer);
+        leftPlayer.ChooseMove(new Card(){Choice = Choice.Move}, Place.Square, leftPlayer, Place.Square);
+        rightPlayer.ChooseStrike(new Card(){Choice = Choice.Strike}, leftPlayer, Place.Square);
         match.Resolve();
         Assert.IsTrue(leftPlayer.Health == 2);
         
         // heal
         Assert.IsTrue(healSelfWhenBurnedCard.Platonic == Platonic.Paper);
-        leftPlayer.ChooseMove(healSelfWhenBurnedCard, Place.Square, leftPlayer);
-        rightPlayer.ChooseMove(new Card(){Platonic = Platonic.Scissors}, Place.Square, rightPlayer);
+        leftPlayer.ChooseMove(healSelfWhenBurnedCard, Place.Square, leftPlayer, Place.Square);
+        rightPlayer.ChooseMove(new Card(){Platonic = Platonic.Scissors}, Place.Square, rightPlayer, Place.Square);
         match.Resolve();
         Assert.IsTrue(leftPlayer.Health == 3);
     }
@@ -95,13 +95,13 @@ public class Cards
         Assert.IsTrue(match.Active);
         Assert.IsTrue(leftPlayer.Health == 3);
 
-        leftPlayer.ChooseMove(new Card(){Choice = Choice.Move, Power = Power.Five}, Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(new Card(){Choice = Choice.Strike, Power = Power.Three}, leftPlayer);
+        leftPlayer.ChooseMove(new Card(){Choice = Choice.Move, Power = Power.Five}, Place.Square, leftPlayer, Place.Square);
+        rightPlayer.ChooseStrike(new Card(){Choice = Choice.Strike, Power = Power.Three}, leftPlayer, Place.Square);
         match.Resolve();
         Assert.IsTrue(leftPlayer.Health == 3);
 
-        leftPlayer.ChooseMove(new Card(){Choice = Choice.Move, Power = Power.Five}, Place.Square, leftPlayer);
-        rightPlayer.ChooseStrike(new Card(){Choice = Choice.Strike, Power = Power.Five}, leftPlayer);
+        leftPlayer.ChooseMove(new Card(){Choice = Choice.Move, Power = Power.Five}, Place.Square, leftPlayer, Place.Square);
+        rightPlayer.ChooseStrike(new Card(){Choice = Choice.Strike, Power = Power.Five}, leftPlayer, Place.Square);
         match.Resolve();
         Assert.IsTrue(leftPlayer.Health == 2);
     }
