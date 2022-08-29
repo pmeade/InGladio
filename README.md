@@ -1,4 +1,4 @@
-# InGladio
+# In Gladio
 
 Blockchain is supposed to be available for anyone to mine and make money. You can buy a rig and run it at home, but you can’t earn a profit unless you have huge amount of capital or access to things like cheap electricty. Networks like Bitcoin are controlled by a small number of wealthy mining outfits. In Gladio is a blockchain where the miners play a game to mine the cryptocurrency. The idea is that anyone can play and earn money the whole time. If this reaches great success then it could suffice as basic income for some players.
 
