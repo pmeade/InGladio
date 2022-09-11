@@ -4,11 +4,13 @@ using System.Text.RegularExpressions;
 
 namespace lib
 {
-    public class PlayerController : Target
+    public class PlayerController : Target, Mover
     {
         private Challenge challenge = null;
         
         private Match match = null;
+        
+        public int Residency = 1;
         public Place Place { get; set; }
         public int Health { get; private set; } = 3;
         public bool Dead { get; private set; } = false;
@@ -97,6 +99,7 @@ namespace lib
 
         private void Play(Play play)
         {
+            ActivePlay = play;
             match?.Play(this, play);
         }
 
@@ -131,31 +134,48 @@ namespace lib
             }
         }
 
-        public void Move(Place place)
+        public void UpdateLocation(Place place)
         {
-            Place = place;
+            if (place != Place)
+            {
+                Place = place;
+                Residency = 1;
+            }
         }
 
         public Place Location => Place;
+        public Play ActivePlay { get; set; }
 
-        public void ChooseMove(Card card, Place place, Target target, Place locationPlayedFrom)
+        public void MoveSelf(Card card, Place moveTo)
         {
-            if (target != Opponent)
-            {
-                Play(lib.Play.Move(card, place, target, locationPlayedFrom));
-            }
-        }
-        public void ChooseParry(Card card, Place locationPlayedFrom)
-        {
-            Play(lib.Play.Parry(card, Opponent, locationPlayedFrom));
+            Play(lib.Play.Move(card, moveTo, Opponent, this, Location));
         }
 
-        public void ChooseStrike(Card card, Target target, Place locationPlayedFrom)
+        public void MoveBasket(Card card, Place moveTo)
         {
-            if (target != this)
+            if (Location == match?.Basket.Location)
             {
-                Play(lib.Play.Strike(card, target, locationPlayedFrom));
+                Play(lib.Play.Move(card, moveTo, match?.Basket, match?.Basket, Location));
             }
+        }
+        
+        public void ParryOpponent(Card card)
+        {
+            Play(lib.Play.Parry(card, Opponent, Location));
+        }
+        
+        public void ParryBasket(Card card)
+        {
+            Play(lib.Play.Parry(card, match?.Basket, Location));
+        }
+
+        public void StrikeOpponent(Card card)
+        {
+            Play(lib.Play.Strike(card, Opponent, Location));
+        }
+        public void StrikeBasket(Card card)
+        {
+            Play(lib.Play.Strike(card, match?.Basket, Location));
         }
 
         public void Win()
@@ -185,24 +205,60 @@ namespace lib
 
         public void PlayCard(uint cardIndex, string[] data)
         {
+            _accumulateResidency();
+            
             var card = Deck.Get(cardIndex);
+            Target target;
+            bool basket;
             switch (card.Choice)
             {
                 case Choice.Move:
-                    Place moveLocation;
-                    Place.TryParse(data[0], true, out moveLocation);
-                    ChooseMove(card, moveLocation, this, Place);
+                    Enum.TryParse(data[0], true, out Place moveTo);
+                    basket = (data[1].Equals("basket"));
+                    if (basket)
+                    {
+                        MoveBasket(card, moveTo);
+                    }
+                    else
+                    {
+                        MoveSelf(card, moveTo);
+                    }
                     break;
                 
                 case Choice.Parry:
-                    ChooseParry(card, Place);
+                    basket = (data[0].Equals("basket"));
+                    if (basket)
+                    {
+                        ParryBasket(card);
+                    }
+                    else
+                    {
+                        ParryOpponent(card);
+                    }
                     break;
                 
                 case Choice.Strike:
-                    var target = (data[0].Equals("basket")) ? match.Basket : Opponent as Target;
-                    ChooseStrike(card, target, Place);
+                    basket = (data[0].Equals("basket"));
+                    if (basket)
+                    {
+                        StrikeBasket(card);
+                    }
+                    else
+                    {
+                        StrikeOpponent(card);
+                    }
                     break;
             }
         }
+
+        private void _accumulateResidency()
+        {
+            Residency += 1;
+        }
+    }
+
+    public interface Mover
+    {
+        void UpdateLocation(Place place);
     }
 }

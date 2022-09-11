@@ -119,4 +119,43 @@ namespace lib
             return new Card() { Choice = Choice.Parry };
         }
     }
+    
+    namespace CardExtensionMethods
+    {
+        public static class CardExtensions
+        { 
+            public static Card AsRock(this Card card)
+            {
+                card.Platonic = Platonic.Rock;
+                return card;
+            }
+            public static Card AsPaper(this Card card)
+            {
+                card.Platonic = Platonic.Paper;
+                return card;
+            }
+            public static Card AsScissors(this Card card)
+            {
+                card.Platonic = Platonic.Scissors;
+                return card;
+            }
+            public static Card AsThree(this Card card)
+            {
+                card.Power = Power.Three;
+                return card;
+            }
+
+            public static Card AsFive(this Card card)
+            {
+                card.Power = Power.Five;
+                return card;
+            }
+
+            public static Card AsEight(this Card card)
+            {
+                card.Power = Power.Eight;
+                return card;
+            }
+        }
+    }
 }

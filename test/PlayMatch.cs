@@ -1,4 +1,5 @@
 ﻿using lib;
+using lib.CardExtensionMethods;
 
 namespace test;
 
@@ -23,44 +24,42 @@ public class Playing
     {
         Assert.True(leftPlayer.CanPlay());
         var deck = Deck.Random(Generator.FromSeed(1));
-        leftPlayer.ChooseMove(deck.Get(0), Place.Square, leftPlayer, Place.Square);
+        leftPlayer.MoveSelf(deck.Get(0), Place.Square);
         Assert.False(leftPlayer.CanPlay());
     }
 
     [Test]
     public void RockBurnsScissors()
     {
-        var leftCard = new Card();
-        leftPlayer.ChooseMove(leftCard, lib.Place.Square, leftPlayer, Place.Square);
-        rightPlayer.ChooseMove(new Card(){Platonic = Platonic.Scissors}, Place.Square, rightPlayer, Place.Square);
+        leftPlayer.StrikeOpponent(Card.BasicStrike().AsRock());
+        rightPlayer.StrikeOpponent(Card.BasicStrike().AsScissors());
         match.Resolve();
         var board = match.Board;
-        Assert.True(board.LeftCard == leftCard);
-        Assert.True(board.RightCard == null);
+        Assert.False(leftPlayer.ActivePlay.Card.Burned);
+        Assert.True(rightPlayer.ActivePlay.Card.Burned);
     }
     
     [Test]
     public void ScissorsBurnsPaper()
     {
-        var leftCard = new Card(){Platonic = Platonic.Scissors};
-        leftPlayer.ChooseMove(leftCard, lib.Place.Square, leftPlayer, Place.Square);
-        rightPlayer.ChooseMove(new Card(){Platonic = Platonic.Paper}, Place.Square, rightPlayer, Place.Square);
+        leftPlayer.StrikeOpponent(Card.BasicStrike().AsScissors());
+        rightPlayer.StrikeOpponent(Card.BasicStrike().AsPaper());
         match.Resolve();
         var board = match.Board;
-        Assert.True(board.LeftCard == leftCard);
-        Assert.True(board.RightCard == null);
+        Assert.False(leftPlayer.ActivePlay.Card.Burned);
+        Assert.True(rightPlayer.ActivePlay.Card.Burned);
     }
     
     [Test]
     public void PaperBurnsRock()
     {
         var leftCard = new Card(){Platonic = Platonic.Paper};
-        leftPlayer.ChooseMove(leftCard, lib.Place.Square, leftPlayer, Place.Square);
-        rightPlayer.ChooseMove(new Card(), Place.Square, rightPlayer, Place.Square);
+        leftPlayer.MoveSelf(leftCard, lib.Place.Square);
+        rightPlayer.MoveSelf(Card.BasicMove().AsRock(), Place.Square);
         var board = match.Board;
         match.Resolve();
-        Assert.True(board.LeftCard == leftCard);
-        Assert.True(board.RightCard == null);
+        Assert.False(leftPlayer.ActivePlay.Card.Burned);
+        Assert.True(rightPlayer.ActivePlay.Card.Burned);
     }
 
     [Test]
@@ -68,8 +67,8 @@ public class Playing
     {
         var board = match.Board;
         Assert.True(leftPlayer.Place == Place.Steps);
-        leftPlayer.ChooseMove(new Card(), Place.Square, leftPlayer, Place.Square);
-        rightPlayer.ChooseMove(new Card(), Place.Square, rightPlayer, Place.Square);
+        leftPlayer.MoveSelf(new Card(), Place.Square);
+        rightPlayer.MoveSelf(new Card(), Place.Square);
         match.Resolve();
         Assert.True(leftPlayer.Place == Place.Square);
     }
@@ -79,8 +78,8 @@ public class Playing
     {
         var board = match.Board;
         Assert.True(leftPlayer.Place == Place.Steps);
-        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer, Place.Square);
-        rightPlayer.ChooseParry(Card.BasicParry(), Place.Square);
+        leftPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+        rightPlayer.ParryOpponent(Card.BasicParry());
         match.Resolve();
         Assert.True(leftPlayer.Place == Place.Square);
     }
@@ -90,8 +89,8 @@ public class Playing
     {
         var board = match.Board;
         Assert.True(leftPlayer.Place == Place.Steps);
-        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, rightPlayer, Place.Square);
-        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer, Place.Square);
+        leftPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+        rightPlayer.StrikeOpponent(Card.BasicStrike());
         match.Resolve();
         Assert.True(leftPlayer.Place == Place.Steps);
     }
@@ -100,8 +99,8 @@ public class Playing
     public void StrikeSucceedsVsStrike()
     {
         Assert.True(rightPlayer.Health == 3);
-        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer, Place.Square);
-        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer, Place.Square);
+        leftPlayer.StrikeOpponent(Card.BasicStrike());
+        rightPlayer.StrikeOpponent(Card.BasicStrike());
         match.Resolve();
         Assert.True(rightPlayer.Health == 2);
     }
@@ -110,8 +109,8 @@ public class Playing
     public void StrikeSucceedsVsMove()
     {
         Assert.True(rightPlayer.Health == 3);
-        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer, Place.Square);
-        rightPlayer.ChooseMove(Card.BasicMove(), Place.Square, rightPlayer, Place.Square);
+        leftPlayer.StrikeOpponent(Card.BasicStrike());
+        rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
         match.Resolve();
         Assert.True(rightPlayer.Health == 2);
     }
@@ -120,8 +119,8 @@ public class Playing
     public void StrikeFailsVsParry()
     {
         Assert.True(rightPlayer.Health == 3);
-        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer, Place.Square);
-        rightPlayer.ChooseParry(Card.BasicParry(), Place.Square);
+        leftPlayer.StrikeOpponent(Card.BasicStrike());
+        rightPlayer.ParryOpponent(Card.BasicParry());
         match.Resolve();
         Assert.True(rightPlayer.Health == 3);
     }
@@ -130,8 +129,8 @@ public class Playing
     public void ParrySucceedsVsStrike()
     {
         Assert.True(rightPlayer.Health == 3);
-        leftPlayer.ChooseParry(Card.BasicParry(), Place.Square);
-        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer, Place.Square);
+        leftPlayer.ParryOpponent(Card.BasicParry());
+        rightPlayer.StrikeOpponent(Card.BasicStrike());
         match.Resolve();
         Assert.True(rightPlayer.Health == 1);
     }
@@ -140,8 +139,8 @@ public class Playing
     public void ParryFailsVsMove()
     {
         Assert.True(rightPlayer.Health == 3);
-        rightPlayer.ChooseParry(Card.BasicParry(), Place.Square);
-        rightPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer, Place.Square);
+        rightPlayer.ParryOpponent(Card.BasicParry());
+        rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
         match.Resolve();
         Assert.True(rightPlayer.Health == 3);
     }
@@ -150,8 +149,8 @@ public class Playing
     public void ParryFailsVsParry()
     {
         Assert.True(rightPlayer.Health == 3);
-        rightPlayer.ChooseParry(Card.BasicParry(), Place.Square);
-        rightPlayer.ChooseParry(Card.BasicParry(), Place.Square);
+        rightPlayer.ParryOpponent(Card.BasicParry());
+        rightPlayer.ParryOpponent(Card.BasicParry());
         match.Resolve();
         Assert.True(rightPlayer.Health == 3);
     }
@@ -166,12 +165,12 @@ public class Playing
     [Test]
     public void PlayerDiesAt0Health()
     {
-        leftPlayer.ChooseStrike(Card.BasicStrike(), rightPlayer, Place.Square);
-        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer, Place.Square);
+        leftPlayer.StrikeOpponent(Card.BasicStrike());
+        rightPlayer.StrikeOpponent(Card.BasicStrike());
         match.Resolve();
         Assert.True(rightPlayer.Health == 2);
-        leftPlayer.ChooseParry(Card.BasicParry(), Place.Square);
-        rightPlayer.ChooseStrike(Card.BasicStrike(), leftPlayer, Place.Square);
+        leftPlayer.ParryOpponent(Card.BasicParry());
+        rightPlayer.StrikeOpponent(Card.BasicStrike());
         match.Resolve();
         Assert.True(rightPlayer.Health == 0);
         Assert.True(rightPlayer.Dead);
@@ -190,34 +189,97 @@ public class Playing
     }
 
     [Test]
+    public void CanParryBasketFromSamePlace()
+    {
+        leftPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+        rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+        match.Resolve();
+
+        bool parried = false;
+
+        while (!parried)
+        {
+            if (match.Basket.Face.Choice == Choice.Strike)
+            {
+                leftPlayer.ParryBasket(Card.BasicParry().AsEight());
+                rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+                parried = true;
+            }
+            else
+            {
+                leftPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+                rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+            }
+
+            match.Resolve();
+        }
+
+        Assert.True(match.Basket.Health == 1);
+    }
+
+    [Test]
     public void CanStrikeBasketFromSamePlace()
     {
-        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, rightPlayer, Place.Square);
-        rightPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer, Place.Square);
+        leftPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+        rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
         match.Resolve();
-        leftPlayer.ChooseStrike(Card.BasicStrike(), match.Basket, Place.Square);
-        rightPlayer.ChooseMove(Card.BasicMove(), Place.Square, rightPlayer, Place.Square);
-        match.Resolve();
+
+        bool struck = false;
+
+        while (!struck)
+        {
+            if (match.Basket.Face.Choice == Choice.Move)
+            {
+                leftPlayer.StrikeBasket(Card.BasicStrike().AsEight());
+                rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+                struck = true;
+            }
+            else
+            {
+                leftPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+                rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+            }
+
+            match.Resolve();
+        }
+
         Assert.True(match.Basket.Health == 2);
     }
 
     [Test]
     public void CanMoveBasketFromSamePlace()
     {
-        leftPlayer.ChooseMove(Card.BasicMove(), Place.Square, leftPlayer, Place.Square);
-        rightPlayer.ChooseMove(Card.BasicMove(), Place.Square, rightPlayer, Place.Square);
+        leftPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+        rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
         match.Resolve();
-        leftPlayer.ChooseMove(Card.BasicMove(), Place.Curtain, match.Basket, Place.Square);
-        rightPlayer.ChooseMove(Card.BasicMove(), Place.Square, rightPlayer, Place.Square);
-        match.Resolve();
+
+        bool movedBasket = false;
+
+        while (!movedBasket)
+        {
+            if (match.Basket.Face.Choice == Choice.Parry)
+            {
+                leftPlayer.MoveBasket(Card.BasicMove().AsEight(), Place.Curtain);
+                rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+                movedBasket = true;
+            }
+            else
+            {
+                leftPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+                rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
+            }
+
+            match.Resolve();
+        }
+
         Assert.True(match.Basket.Place == Place.Curtain);
     }
 
     [Test]
     public void CannotStrikeOneself()
     {
-        leftPlayer.ChooseStrike(new Card(), leftPlayer, Place.Square);
-        rightPlayer.ChooseMove(new Card(), Place.Square, rightPlayer, Place.Square);
+        leftPlayer.StrikeOpponent(new Card());
+        rightPlayer.MoveSelf(new Card(), Place.Square);
         match.Resolve();
         Assert.True(leftPlayer.Health == 3);
     }
@@ -225,8 +287,8 @@ public class Playing
     [Test]
     public void CannotMoveOpponent()
     {
-        leftPlayer.ChooseMove(new Card(), Place.Square, leftPlayer, Place.Square);  
-        rightPlayer.ChooseParry(new Card(), Place.Square);
+        leftPlayer.MoveSelf(new Card(), Place.Square);  
+        rightPlayer.ParryOpponent(new Card());
         match.Resolve();
         Assert.True(rightPlayer.Place == Place.Steps);
     }

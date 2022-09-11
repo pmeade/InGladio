@@ -21,7 +21,7 @@ namespace lib
             this.Active = true;
             this.Challenge = challenge;
             this.generator = Generator.FromSeed(seed);
-            this.Basket = new Basket(this.generator);
+            this.Basket = new Basket(this.generator, GetFirstPlayerIn);
             host.Deck = (challenge.Host.Deck as SealedDeck)?.Unsealed() ?? Deck.Random(this.generator);
             challenger.Deck = challenge.Challenger.Deck ?? Deck.Random(this.generator);
         }
@@ -82,8 +82,9 @@ namespace lib
         };
 
         private readonly int seed;
+        private bool bVerbose;
 
-        public void Resolve(bool verbose = false)
+        public void Resolve()
         {
             if (leftPlay != null && rightPlay != null)
             {
@@ -92,8 +93,8 @@ namespace lib
                 Board.RightCard = rightPlay?.Card;
                 if (Active && Started && leftPlay != null && rightPlay != null)
                 {
-                    processPlays(verbose);
-                    burnCards(verbose);
+                    processPlays();
+                    burnCards();
                     leftPlay = null;
                     rightPlay = null;
                 }
@@ -164,78 +165,71 @@ namespace lib
 
         public PlayerController Winner { get; private set; }
 
-        private void burnCards(bool verbose = false)
+        private void burnCards()
         {
-            if (leftPlay.Card.Platonic == burns[rightPlay.Card.Platonic])
+            _burnActiveCard(host.ActivePlay);
+            _burnActiveCard(challenger.ActivePlay);
+            if (Basket.ActivePlay != null)
             {
-                if (verbose)
-                {
-                    Console.WriteLine($"{rightPlay.Card.Platonic.ToString()} burns {leftPlay.Card.Platonic.ToString()}");
-                }
-
-                leftPlay.Card.Burned = true;
-                leftPlay.Card.OnBurned?.Invoke(host);
-                Board.LeftCard = null;
-            }
-
-            if (rightPlay.Card.Platonic == burns[leftPlay.Card.Platonic])
-            {
-                if (verbose)
-                {
-                    Console.WriteLine($"{leftPlay.Card.Platonic.ToString()} burns {rightPlay.Card.Platonic.ToString()}");
-                }
-
-                rightPlay.Card.Burned = true;
-                rightPlay.Card.OnBurned?.Invoke(challenger);
-                Board.RightCard = null;
+                _burnActiveCard(Basket.ActivePlay);
             }
         }
 
-        private void processPlays(bool verbose = false)
+        private void _burnActiveCard(Play activePlay)
         {
-            if (verbose)
+            var targetPlay = activePlay.Target.ActivePlay;
+            if (activePlay.Card.Platonic == burns[targetPlay.Card.Platonic])
+            {
+                if (bVerbose)
+                {
+                    Console.WriteLine($"{targetPlay.Card.Platonic.ToString()} burns {activePlay.Card.Platonic.ToString()}");
+                }
+
+                activePlay.Card.Burned = true;
+                activePlay.Card.OnBurned?.Invoke(host);
+            }
+        }
+
+        private void processPlays()
+        {
+            if (bVerbose)
             {
                 Console.WriteLine();
             }
-            
-            if (leftPlay.BeatsInMoveStrikeParry(rightPlay))
-            {
-                if (verbose)
-                {
-                    Console.WriteLine($"{leftPlay.Card.Choice.ToString()} card wins hand");
-                }
-                leftPlay.Card.OnWinHand?.Invoke(host);
-            }
 
-            if (rightPlay.BeatsInMoveStrikeParry(leftPlay))
+            _moveStrikeParry(host);
+            _moveStrikeParry(challenger);
+            _resolvePlay(host);
+            _resolvePlay(challenger);
+        }
+
+        private void _resolvePlay(PlayerController player)
+        {
+            var activePlay = player.ActivePlay;
+            var opposedPlay = player.ActivePlay.Target.ActivePlay;
+            if (activePlay.BigEnough(opposedPlay.EffectivePower)
+                && !activePlay.IsStoppedBy(opposedPlay.Choice))
             {
-                if (verbose)
-                {
-                    Console.WriteLine($"{rightPlay.Card.Choice.ToString()} card wins hand");
-                }
-                rightPlay.Card.OnWinHand?.Invoke(challenger);
-            }
-            
-            if (leftPlay.BigEnough(rightPlay) && !leftPlay.IsStoppedBy(rightPlay.Choice))
-            {
-                if (verbose)
+                if (bVerbose)
                 {
                     Console.WriteLine(
-                        $"{leftPlay.Card.Choice.ToString()} {leftPlay.Card.Power.ToString()} " +
+                        $"{activePlay.Card.Choice.ToString()} {activePlay.Card.Power.ToString()} " +
                         $"resolves against " +
-                        $"{rightPlay.Card.Choice.ToString()} {rightPlay.Card.Power.ToString()}");
+                        $"{opposedPlay.Card.Choice.ToString()} {opposedPlay.Card.Power.ToString()}");
                 }
-                leftPlay.Resolve(host);
+                activePlay.Resolve(player);
             }
+        }
 
-            if (rightPlay.BigEnough(leftPlay) && !rightPlay.IsStoppedBy(leftPlay.Choice))
+        private void _moveStrikeParry(PlayerController player)
+        {
+            if (player.ActivePlay.BeatsInMoveStrikeParry(player.ActivePlay.Target.ActivePlay.Choice))
             {
-                if (verbose)
+                if (bVerbose)
                 {
-                    Console.WriteLine($"{rightPlay.Card.Choice.ToString()} {rightPlay.Card.Power.ToString()}" +
-                                      $" resolves against {leftPlay.Card.Choice.ToString()} {leftPlay.Card.Power.ToString()}");
+                    Console.WriteLine($"{player.ActivePlay.Card.Choice.ToString()} card wins hand");
                 }
-                rightPlay.Resolve(challenger);
+                player.ActivePlay.Card.OnWinHand?.Invoke(player);
             }
         }
 
@@ -252,6 +246,29 @@ namespace lib
         public PlayerController GetChallenger()
         {
             return challenger;
+        }
+
+        public void SetVerbose(bool verbose)
+        {
+            bVerbose = verbose;
+        }
+
+        public Target GetFirstPlayerIn(Place location)
+        {
+            var hostTimeInLocation = host.Location == location ? host.Residency : 0;
+            var challengerTimeInLocation = challenger.Location == location ? challenger.Residency : 0;
+
+            if (challengerTimeInLocation > hostTimeInLocation)
+            {
+                return challenger;
+            }
+
+            if (hostTimeInLocation > 0)
+            {
+                return host;
+            }
+
+            return null;
         }
     }
 }

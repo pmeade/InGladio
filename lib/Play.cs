@@ -42,26 +42,28 @@ namespace lib
             }
         }
 
-        public static Play Move(Card card, Place place, Target target, Place locationPlayedFrom)
+        public static Play Move(Card card, Place moveTo, Target opposedTarget, Mover mover, Place locationPlayedFrom)
         {
             if (card.Choice != Choice.Move)
             {
                 return null;
             }
-            return new MovePlay(card, place, target, locationPlayedFrom);
+            return new MovePlay(card, moveTo, opposedTarget, mover, locationPlayedFrom);
         }
 
         private class MovePlay : Play
         {
-            private Place place { get; }
-            public MovePlay(Card card, Place place, Target target, Place locationPlayedFrom) : base(card, target, locationPlayedFrom)
+            private readonly Mover mover;
+            private Place location { get; }
+            public MovePlay(Card card, Place location, Target target, Mover mover, Place locationPlayedFrom) : base(card, target, locationPlayedFrom)
             {
-                this.place = place;
+                this.location = location;
+                this.mover = mover;
             }
 
             public override void Resolve(PlayerController player)
             {
-                Target.Move(place);
+                mover.UpdateLocation(location);
             }
 
             public override bool IsStoppedBy(Choice opposingChoice)
@@ -138,16 +140,16 @@ namespace lib
             return true;
         }
 
-        public bool BeatsInMoveStrikeParry(Play otherPlay)
+        public bool BeatsInMoveStrikeParry(Choice otherChoice)
         {
-            return (Choice == Choice.Move && otherPlay.Choice == Choice.Parry)
-                   || (Choice == Choice.Parry && otherPlay.Choice == Choice.Strike)
-                   || (Choice == Choice.Strike && otherPlay.Choice == Choice.Move);
+            return (Choice == Choice.Move && otherChoice == Choice.Parry)
+                   || (Choice == Choice.Parry && otherChoice == Choice.Strike)
+                   || (Choice == Choice.Strike && otherChoice == Choice.Move);
         }
 
-        public bool BigEnough(Play otherPlay)
+        public bool BigEnough(Power otherEffectivePower)
         {
-            return EffectivePower >= otherPlay.EffectivePower;
+            return EffectivePower >= otherEffectivePower;
         }
     }
 }

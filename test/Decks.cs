@@ -37,6 +37,6 @@ public class Decks
     [Test]
     public void CanPlayCardFromDeck()
     {
-        leftPlayer.ChooseStrike(match.LeftDeck.Play(0), rightPlayer, Place.Square);
+        leftPlayer.StrikeOpponent(match.LeftDeck.Play(0));
     }
 }

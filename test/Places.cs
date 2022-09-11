@@ -22,9 +22,17 @@ public class Places
     {
         internal int Health = 3;
 
-        public TestTarget(Place location)
+        private TestTarget(Place location, Target targetOfTarget)
         {
             Location = location;
+            ActivePlay = Play.Strike(Card.BasicStrike(), targetOfTarget, location);
+        }
+        
+        public TestTarget(Place location)
+        {
+            var targetOfTarget = new TestTarget(location, this);
+            Location = location;
+            ActivePlay = Play.Strike(Card.BasicStrike(), targetOfTarget, location);
         }
 
         public void TakeDamage(int amount, PlayerController dealer)
@@ -32,9 +40,10 @@ public class Places
             Health -= amount;
         }
 
-        public void Move(Place place) => Location = place;
+        public void UpdateLocation(Place place) => Location = place;
 
         public Place Location { get; private set; }
+        public Play ActivePlay { get; }
     }
     
     [Test]

@@ -265,7 +265,9 @@ public class NetGame
         Console.WriteLine();
         Console.WriteLine("You played {0}", displayTurn(turn, _getLocalPlayer()));
         Console.WriteLine("Opponent played {0}", displayTurn(opponentsTurn, _getRemotePlayer()));
+        match?.SetVerbose(true);
 
+        
         var me = _getLocalPlayer();
         if (turn.Message != null)
         {
@@ -276,7 +278,7 @@ public class NetGame
             {
                 them?.PlayCard(opponentsTurn.Message.Card, opponentsTurn.Message.Data);
 
-                match?.Resolve(true);
+                match?.Resolve();
                 if (_getLocalPlayer()!.Deck.Get(turn.Message.Card).Burned)
                 {
                     _burned[ConsoleKey.D1 + (int)turn.Message.Card] = true;
