@@ -208,7 +208,6 @@ namespace lib
             _accumulateResidency();
             
             var card = Deck.Get(cardIndex);
-            Target target;
             bool basket;
             switch (card.Choice)
             {

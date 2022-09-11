@@ -33,10 +33,4 @@ public class Decks
         Assert.IsTrue(deck.Count == 8);
         Assert.IsTrue(deck.Get(0) == card1);
     }
-
-    [Test]
-    public void CanPlayCardFromDeck()
-    {
-        leftPlayer.StrikeOpponent(match.LeftDeck.Play(0));
-    }
 }

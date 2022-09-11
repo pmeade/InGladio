@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using lib;
 
 namespace client;
@@ -15,7 +16,7 @@ public abstract class Message
     public static List<Message> Parse(string data)
     {
         var messages = new List<Message>();
-        var parts = data.Split(EOM);
+        var parts = data.Split(EOM, StringSplitOptions.RemoveEmptyEntries);
         foreach (var messageData in parts)
         {
             var message = decode(messageData);
@@ -30,7 +31,7 @@ public abstract class Message
 
     private static Message? decode(string messageData)
     {
-        string[] parts = messageData.Split(DELIM);
+        string[] parts = messageData.Split(DELIM, StringSplitOptions.RemoveEmptyEntries);
         if (EMessageType.TryParse(parts[0], true, out EMessageType messageType))
         {
             switch (messageType)
@@ -42,7 +43,7 @@ public abstract class Message
             }
         }
 
-        return null;
+        throw new ProtocolViolationException();
     }
 
     private const char DELIM = ',';
@@ -83,7 +84,7 @@ public class PlayMessage : Message
     protected override string? detailsToString()
     {
         if (Data != null) return $"{Card.ToString()},{string.Join(',', Data)}";
-        return null;
+        throw new ProtocolViolationException();
     }
 
     public static PlayMessage? Create(uint card, string[]? data)
@@ -95,5 +96,14 @@ public class PlayMessage : Message
         };
     }
 
-    public static Message? FromNet(string[]? parts) => Create(UInt32.Parse(parts?[1] ?? string.Empty), new[] { parts?[2] ?? string.Empty} );
+    public static Message? FromNet(string[]? parts)
+    {
+        if (parts != null && parts.Length > 2)
+        {
+            var extraData = parts.Skip(2).Take(parts.Length - 2).ToArray();
+            return Create(UInt32.Parse(parts[1]), extraData);
+        }
+
+        throw new ProtocolViolationException();
+    }
 }

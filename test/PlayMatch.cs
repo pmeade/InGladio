@@ -278,8 +278,8 @@ public class Playing
     [Test]
     public void CannotStrikeOneself()
     {
-        leftPlayer.StrikeOpponent(new Card());
-        rightPlayer.MoveSelf(new Card(), Place.Square);
+        leftPlayer.StrikeOpponent(Card.BasicStrike());
+        rightPlayer.MoveSelf(Card.BasicMove(), Place.Square);
         match.Resolve();
         Assert.True(leftPlayer.Health == 3);
     }
@@ -287,8 +287,8 @@ public class Playing
     [Test]
     public void CannotMoveOpponent()
     {
-        leftPlayer.MoveSelf(new Card(), Place.Square);  
-        rightPlayer.ParryOpponent(new Card());
+        leftPlayer.MoveSelf(Card.BasicMove(), Place.Square);  
+        rightPlayer.ParryOpponent(Card.BasicParry());
         match.Resolve();
         Assert.True(rightPlayer.Place == Place.Steps);
     }

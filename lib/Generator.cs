@@ -18,7 +18,7 @@ namespace lib
         {
             if (!Valid)
             {
-                return null;
+                throw new InvalidProgramException();
             }
 
             var card = new Card();

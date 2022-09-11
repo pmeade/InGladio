@@ -53,9 +53,10 @@ public class NetGame
         return cardIndex;
     }
 
-    private static Turn completeParry(uint cardIndex)
+    private Turn completeParry(uint cardIndex)
     {
-        var data = new string[] { };
+        var target = inputTarget();
+        string[] data = new[] { target ?? string.Empty};
         return new Turn()
         {
             Message = Message.Play(cardIndex, data),
@@ -77,7 +78,8 @@ public class NetGame
     private Turn completeMove(uint cardIndex)
     {
         var moveLocation = inputLocation();
-        var data = new[] { moveLocation ?? string.Empty };
+        var mover = inputMover();
+        var data = new[] { moveLocation ?? string.Empty, mover ?? String.Empty };
         return new Turn()
         {
             Message = Message.Play(cardIndex, data),
@@ -101,12 +103,43 @@ public class NetGame
         return key;
     }
 
+    private string? inputMover()
+    {
+        if (_getLocalPlayer()?.Location != match?.Basket.Location)
+        {
+            return "self";
+        }
+
+        var key = TextInput.Get(new Dictionary<ConsoleKey, string>()
+        {
+            {
+                ConsoleKey.S,
+                "Self"
+            },
+            {
+                ConsoleKey.B,
+                "Basket"
+            }
+        });
+
+        switch (key)
+        {
+            case ConsoleKey.B:
+                return "basket";
+            default:
+            case ConsoleKey.S:
+                return "self";
+        }
+
+    }
+    
     private string? inputTarget()
     {
-        if (_getLocalPlayer()?.Place != Place.Square)
+        if (_getLocalPlayer()?.Location != match?.Basket.Location)
         {
-            return "opponent";
+            return "Opponent";
         }
+
         
         var key = TextInput.Get(new Dictionary<ConsoleKey, string>()
         {
@@ -249,7 +282,7 @@ public class NetGame
             }
         }
 
-        return null;
+        throw new InvalidProgramException();
     }
 
     public string? HostName { get; set; }
@@ -303,7 +336,7 @@ public class NetGame
                 switch (card.Choice)
                 {
                     case Choice.Move:
-                        sb.Append($" move to {turn.Message.Data?[0]}");
+                        sb.Append($" move to {turn.Message.Data?[1]} to {turn.Message.Data?[0]}");
                         break;
                     case Choice.Strike:
                         sb.Append($" target is {turn.Message.Data?[0]}");

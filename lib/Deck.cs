@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace lib
 {
@@ -52,7 +53,7 @@ namespace lib
                 return cards[index];
             }
 
-            return null;
+            throw new ArgumentOutOfRangeException();
         }
 
         public SealedDeck Sealed()

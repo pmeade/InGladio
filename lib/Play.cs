@@ -1,14 +1,13 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Net;
 
 namespace lib
 {
     public class Play
     {
-        public Card Card { get; }
-        public Choice Choice { get; set; }
+        public Card Card { get; private set;}
+        public Choice Choice { get; private set; }
         
-        public Target Target { get; }
+        public Target Target { get; private set;}
         
         public Power EffectivePower { get; private set; }
 
@@ -46,7 +45,7 @@ namespace lib
         {
             if (card.Choice != Choice.Move)
             {
-                return null;
+                throw new ProtocolViolationException();
             }
             return new MovePlay(card, moveTo, opposedTarget, mover, locationPlayedFrom);
         }
@@ -80,7 +79,7 @@ namespace lib
         {
             if (card.Choice != Choice.Parry)
             {
-                return null;
+                throw new ProtocolViolationException();
             }
             return new ParryPlay(card, target, locationPlayedFrom);
         }
@@ -109,7 +108,7 @@ namespace lib
         {
             if (card.Choice != Choice.Strike)
             {
-                return null;
+                throw new ProtocolViolationException();
             }
             return new StrikePlay(card, target, locationPlayedFrom);
         }
